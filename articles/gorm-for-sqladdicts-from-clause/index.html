@@ -31,6 +31,8 @@
   
 
   <script src="/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
+<script src="/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
+<script src="/javascripts/cookie-alert-b3313f61b59563307884685d19e7849d.js"></script>
 
 <link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 <link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
@@ -41,6 +43,17 @@
   <link href="/stylesheets/screen-1d4d55e7d023f209097a7b94db951d7e.css" media="screen, projection, print" rel="stylesheet" type="text/css">
 
   
+   <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', '{{ site.google_analytics_tracking_id }}', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+
 
 </head>
 
@@ -82,6 +95,12 @@
 
 
       </header>
+      <div id="cookie-alert" class="alert alert-warning alert-dismissible fade in hidden">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>Watch out, I use cookies!</strong> Now you know. Click <a href="https://www.google.com/policies/privacy/partners/">here</a> for enlightenment.
+      </div>
       <div id="main" role="main" class="container">
         <div id="content">
             <div class="row">
@@ -592,7 +611,7 @@ $(function() {
   <small>
       <span class="credit">Powered by <a href="http://sysgears.com/grain/">Grain</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a> and <a href="http://fontawesome.io">Font Awesome</a></span>.
-      <br><span class="credit">Build f8201d9f8939
+      <br><span class="credit">Build 26f3b60f51a5
 .</span>
   </small>
 </p>

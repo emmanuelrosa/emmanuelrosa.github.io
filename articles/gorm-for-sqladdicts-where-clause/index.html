@@ -1,0 +1,1863 @@
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GORM for SQLaddicts: WHERE Clause - EmmanuelRosa.com</title>
+  <meta name="author" content="Emmanuel Rosa">
+
+  
+    <meta name="description" content="How to emulate a WHERE clause in Grails' GORM.">
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="canonical" href="http://www.emmanuelrosa.com">
+  <link href="/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://www.emmanuelrosa.com">
+  <meta property="og:title" content="GORM for SQLaddicts: WHERE Clause - EmmanuelRosa.com">
+  
+    <meta property="og:description" content="How to emulate a WHERE clause in Grails' GORM.">
+  
+
+  <script src="/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="/assets/font-awesome/css/font-awesome.min.css">
+
+
+  
+  <link href="/stylesheets/screen-1d4d55e7d023f209097a7b94db951d7e.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+
+  
+  <body 
+     >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">EmmanuelRosa.com</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a rel="index" href="/"><span class="fa fa-rss-square hidden-sm hidden-md hidden-lg"></span> Blog</a>
+                </li>
+                <li >
+                    <a href="/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Archives</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a class="fa fa-weixin" href="/chat/"><span class="hidden-sm hidden-md hidden-lg"> Chat</span></a>
+                
+            </ul>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" role="main" class="container">
+        <div id="content">
+            <div class="row">
+                <div class="page-content col-md-12">
+                    
+<meta itemprop="name" content="EmmanuelRosa.com" />
+
+<meta itemprop="url" content="http://www.emmanuelrosa.com" />
+<article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+  
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-10-07T15:59:00-04:00" data-updated="true" itemprop="datePublished dateCreated">Wed Oct 07 2015</time>
+
+
+<span>|</span> <time datetime="2015-10-28T19:11:45-04:00" class="updated" itemprop="dateModified">Updated Wed Oct 28 2015</time>
+
+
+        
+      </p>
+    
+    <h1 class="entry-title" itemprop="name headline">GORM for SQLaddicts: WHERE Clause
+        
+    </h1>
+  </header>
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>Learn how to implement the equivalent of a SQL WHERE clause using an HQL query, criteria query, where query, and dynamic finder. <!--more-->You'll save time by learning GORM using the SQL concepts you already know.</p>
+<p><h1>GORM for SQLaddicts</h1>
+<p>Welcome to the GORM for SQLaddicts series. A collection of articles dedicated to experienced SQL programmers who want to learn how to query GORM, the Grails object-relational mapper.</p>
+<p>Throughout this series you will learn how to</p>
+<ol>
+<li><strong>WHERE - Add restrictions to a query</strong></li>
+<li><a href="/articles/gorm-for-sqladdicts-from-clause/">FROM - Work with associations and joins</a></li>
+<li>SELECT - Choose domains and/or properties <em>(coming soon)</em></li>
+<li>GROUP BY - Use aggregate functions <em>(coming soon)</em></li>
+</ol>
+<h2>Is this for me?</h2>
+<p>Have you already jumped in and created some criteria queries, dynamic finders, where queries, or HQL queries? Do you know about GORM associations? Do you have some experience with the Groovy programming language? How about SQL experience, do you have plenty of it? Then this series is for you.</p>
+<h2>Getting started</h2>
+<p>To follow along you'll need Grails 3.0.5 and Mercurial. With Grails and Mercurial installed you can download the source code and run the Grails console.</p>
+<h3>Setup</h3>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>hg clone ssh://hg@bitbucket.org/erosa/gormtut
+</span><span class='line'><span class="nv">$ </span><span class="nb">cd </span>gormtut 
+</span><span class='line'><span class="nv">$ </span>grails console
+</span></code></pre></td></tr></table></div></figure>
+<p>Once the Grails console window appears, copy &amp; paste the following code into the Grails console.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">com.emmanuelrosa.gormtut.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withNewSession</span> <span class="o">{</span> <span class="n">session</span> <span class="o">-&gt;</span>
+</span><span class='line'>    <span class="c1">// Run GORM queries within this Closure.</span>
+</span><span class='line'>    
+</span><span class='line'>    
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Now you're set up to execute GORM queries. All you need to do is write the query within the <code>Closure</code> and run the code (Script->Run or Command-R).</p>
+<h3>Domain classes</h3>
+<p>The examples in this article reference the <code>Product</code>, <code>Vendor</code>, and <code>Address</code> domain classes. See the diagram below to see how the domain classes are related to each other.</p>
+<p><img src="/images/sqladdicts-domains-dd608e6240ea469473399853225b6c94.svg" alt="Domain class diagram" /></p>
+</p>
+<p>You'll begin with HQL due to it's similarity to SQL. From there, you'll learn about criteria queries, where queries, and finally dynamic finders. Let's get started.</p>
+<h1>HQL</h1>
+<p>HQL is a natural way to begin learning GORM queries simply because it makes the most of the SQL you already know. The significant differences in HQL are noticable in the <a href="/articles/gorm-for-sqladdicts-from-clause/">GORM for SQLAddicts: FROM Clause</a> article, but there are still some worth mentioning now.</p>
+<h2>Anatomy</h2>
+<p>The table below compares a SQL query to it's HQL equivalent. Take a look and see how many differences you can identify.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>SQL</th>
+                    
+                        <th>HQL</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">SELECT *</span></td>
+                    
+                        <td><span style="font-family: monospace"></span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">FROM product</span></td>
+                    
+                        <td><span style="font-family: monospace">FROM Product</span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">WHERE name = '12 in teddy bear'</span></td>
+                    
+                        <td><span style="font-family: monospace">WHERE name = '12 in teddy bear'</span></td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p>There are a whopping 2 differences: the <em>Product</em> in the <em>from</em> clause is case-sensitive and the <em>select</em> clause is missing.</p>
+<h3>Case sensitivity</h3>
+<p>An important difference between SQL and HQL is that in SQL you select from <em>tables</em> while in HQL you select from <em>domain classes</em>. Because you're dealing with classes names rather than tables names, the names are case-sensitive.</p>
+<h3>Columns vs Objects</h3>
+<p>
+
+<blockquote>
+    <p>So... how do I select properties?</p>
+    <footer>
+        
+            <strong>You</strong>
+        
+        
+    </footer>
+</blockquote></p>
+<p>The <em>select</em> clause, which is not covered in this article, can be used to return rows of domain class properties. The important thing to know for now is that while SQL queries return rows of columns as you're accustomed to, without a <em>select</em> clause HQL queries return domain class instances instead. Allow me to demonstrate.</p>
+<h4>SQL</h4>
+<p>Take the following SQL query.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="n">SELECT *
+FROM product
+WHERE name = '12 inch teddy bear' </span>
+</span></code></pre></td></tr></table></div></figure>
+<p>To run the query, create the following script in the Grails console.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">com.emmanuelrosa.gormtut.*</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.hibernate.transform.AliasToEntityMapResultTransformer</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withNewSession</span> <span class="o">{</span> <span class="n">session</span> <span class="o">-&gt;</span>
+</span><span class='line'>    <span class="c1">// Run GORM queries within this Closure.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">session</span><span class="o">.</span><span class="na">createSQLQuery</span><span class="o">(</span><span class="s2">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="s2">        SELECT *</span>
+</span><span class='line'><span class="s2">        FROM product</span>
+</span><span class='line'><span class="s2">        WHERE name = &#39;12 inch teddy bear&#39;</span>
+</span><span class='line'><span class="s2">        &quot;&quot;&quot;</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">.</span><span class="na">setResultTransformer</span><span class="o">(</span><span class="k">new</span> <span class="n">AliasToEntityMapResultTransformer</span><span class="o">())</span>
+</span><span class='line'>        <span class="o">.</span><span class="na">list</span><span class="o">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>You're using Hibernate's <code>Session.createSQLQuery(String)</code> to create a SQL query wthich is represented by a <code>SQLQuery</code> instance. The <code>AliasToEntityMapResultTransformer</code> is used to convert each row from a <code>List</code> into a <code>Map</code>, making it possible to access each column by name. Execute the script to see the output, which when formatted for clarity looks like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;ID&#39;</span><span class="o">:</span><span class="mi">2</span><span class="o">,</span> <span class="s1">&#39;PRICE&#39;</span><span class="o">:</span><span class="mf">8.99</span><span class="o">,</span> <span class="s1">&#39;NAME&#39;</span><span class="o">:</span><span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">,</span> <span class="s1">&#39;VERSION&#39;</span><span class="o">:</span><span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;DESCRIPTION&#39;</span><span class="o">:</span><span class="s1">&#39;12 inch teddy bear, comes with cap and jacket&#39;</span><span class="o">,</span> <span class="s1">&#39;VENDOR_ID&#39;</span><span class="o">:</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output is a <code>List</code> of <code>Map</code>s containing each of the selected columns. Without the <code>AliasToEntityMapResultTransformer</code> the output would have been a <code>List</code> of <code>List</code>s. Now lets do the equivalent with a HQL query lacking a <em>select</em> clause.</p>
+<h4>HQL</h4>
+<p>To see what HQL does without a <em>select</em> clause take the HQL query...</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="n">FROM Product
+WHERE name = '12 inch teddy bear' </span>
+</span></code></pre></td></tr></table></div></figure>
+<p>...and place it in the Grails console.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">com.emmanuelrosa.gormtut.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withNewSession</span> <span class="o">{</span> <span class="n">session</span> <span class="o">-&gt;</span>
+</span><span class='line'>    <span class="c1">// Run GORM queries within this Closure.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Product</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">(</span><span class="s2">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="s2">    FROM Product</span>
+</span><span class='line'><span class="s2">    WHERE name = &#39;12 inch teddy bear&#39; </span>
+</span><span class='line'><span class="s2">    &quot;&quot;&quot;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Then execute the script. The output looks like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">2</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><div class="alert alert-warning" role="alert"><p>The output is a <code>List</code> of <code>Product</code>s not a <code>Map&lt;Class, Integer&gt;</code>.</p>
+</div>
+</p>
+<h2>Executing an HQL query</h2>
+<p>The <code>GormEntity</code> trait adds a number of methods to domain classes for executing HQL queries. To keep things simple, I'll stick to <code>executeQuery(String query)</code>, <code>executeQuery(String query, Map args)</code>, <code>find(String query)</code> and <code>find(String query, Map params)</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">(</span><span class="s2">&quot;FROM Product WHERE name = &#39;12 inch teddy bear&#39;&quot;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+<h3>HQL parameters</h3>
+<p>In the example above the HQL query is represented as a <code>String</code>. And within the query there’s the <code>String</code> literal <code>'12 inch teddy bear'</code>. Such nested <code>Strings</code> can become difficult to read, so here’s a way to execute the same query using parameters instead.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">(</span><span class="s1">&#39;FROM Product WHERE name = :name&#39;</span><span class="o">,</span> <span class="o">[</span><span class="nl">name:</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">])</span>
+</span></code></pre></td></tr></table></div></figure>
+<h3>Get the first (or only) result</h3>
+<p>If your query returns a single object as the result, or you only want to use the first result, you can use the <code>GormEntity.find(String)</code> method.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="s1">&#39;FROM Product WHERE name = :name&#39;</span><span class="o">,</span> <span class="o">[</span><span class="nl">name:</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">])</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>Restrictions</h2>
+<p>The example query shown earlier contains a simple equality restriction in the WHERE clause.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">WHERE</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;12 inch teddy bear&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The following table lists various SQL and HQL restrictions. As you’ll see, they are identical.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>Description</th>
+                    
+                        <th>SQL & HQL</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td>equality</td>
+                    
+                        <td>name = ‘12 inch teddy bear</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>inequality</td>
+                    
+                        <td>name <> ‘12 inch teddy bear</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>like</td>
+                    
+                        <td>name like '%teddy bear%'</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>case-insensitive like</td>
+                    
+                        <td>lower(name) like lower('%Teddy Bear%')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>between</td>
+                    
+                        <td>price between 4 and 8</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not between</td>
+                    
+                        <td>price not between 4 and 8</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>in</td>
+                    
+                        <td>price in (3.49, 9.49)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not in</td>
+                    
+                        <td>not in (3.49, 9.49)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than</td>
+                    
+                        <td>price < 4.99</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than</td>
+                    
+                        <td>price > 4.99</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than or equal to</td>
+                    
+                        <td>price <= 4.99</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than or equal to</td>
+                    
+                        <td>price >= 4.99</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is null</td>
+                    
+                        <td>state is null</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is not null</td>
+                    
+                        <td>state is not null</td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p><div class="alert alert-info" role="alert"><p>Neither SQL or HQL have a case-insensitive like operator, so it's simulated with the <code>lower()</code> function.</p>
+</div>
+</p>
+<p><div class="alert alert-info" role="alert"><p>The <em>is null</em> and <em>is not null</em> restrictions above are from the <code>Address</code> domain class. I chose the <code>Address</code> domain class because the <code>Product</code> domain class doesn’t have nullable properties.</p>
+</div>
+</p>
+<h3>Collection associations</h3>
+<p>HQL has a <code>size()</code> function which can be used to count the number of items in a GORM <em>hasMany</em> association, such as the <code>products</code> association in the <code>Vendor</code> class. For example, to query the <code>Vendor</code>s with more than two <code>Product</code>s, you’d likely do something like this in SQL:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">v</span><span class="p">.</span><span class="n">id</span> 
+</span><span class='line'><span class="k">FROM</span> <span class="n">vendor</span> <span class="k">as</span> <span class="n">v</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">product</span> <span class="k">as</span> <span class="n">p</span> <span class="k">ON</span> <span class="n">p</span><span class="p">.</span><span class="n">vendor_id</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">id</span>
+</span><span class='line'><span class="k">GROUP</span> <span class="k">BY</span> <span class="n">v</span><span class="p">.</span><span class="n">id</span>
+</span><span class='line'><span class="k">HAVING</span> <span class="k">count</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">id</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Lets try it. Run the query in the Grails console to get the <code>List</code> of <code>Vendor</code> IDs.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="n">session</span><span class="o">.</span><span class="na">createSQLQuery</span><span class="o">(</span><span class="s2">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="s2">    SELECT v.id </span>
+</span><span class='line'><span class="s2">    FROM vendor as v INNER JOIN product as p ON p.vendor_id = v.id</span>
+</span><span class='line'><span class="s2">    GROUP BY v.id</span>
+</span><span class='line'><span class="s2">    HAVING count(p.id) &gt; 2</span>
+</span><span class='line'><span class="s2">        &quot;&quot;&quot;</span><span class="o">).</span><span class="na">list</span><span class="o">()</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output is <code>[1, 3]</code>. With HQL you can accomplish the same thing using <code>size()</code>. Plus, you'll get <code>Vendor</code> instances instead of their IDs. Run the following HQL query and see for yourself.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">FROM</span> <span class="n">Vendor</span> 
+</span><span class='line'><span class="k">WHERE</span> <span class="k">size</span><span class="p">(</span><span class="n">products</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The <code>size()</code> function does all the heavy lifting! Listed below are examples of restrictions using <code>size()</code>.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>Description</th>
+                    
+                        <th>HQL</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td>equality</td>
+                    
+                        <td>size(products) = 0</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>inequality</td>
+                    
+                        <td>size(products) != 0</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than</td>
+                    
+                        <td>size(products) < 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than</td>
+                    
+                        <td>size(products) > 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than or equal to</td>
+                    
+                        <td>size(products) >= 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than or equal to</td>
+                    
+                        <td>size(products) <= 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>between</td>
+                    
+                        <td>size(products) between 3 and 5</td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p>Isn’t that cool! In fact, the <a href="/articles/gorm-for-sqladdicts-from-clause/"><em>from clause</em></a> article in this series shows an example of using the <code>size(someProperty) = 0</code> restriction in place of a left outer join. It's certainly a handy function.</p>
+<h2>Conjunctions</h2>
+<p>When joining restrictions with <em>and</em> and <em>or</em>, HQL works exactly like the SQL you’re used to. Enough with the trivial, let’s move on to one of the most powerful GORM query methods: criteria queries.</p>
+<h1>Criteria query</h1>
+<p>Thus far the transition into GORM queries has been straight-forward. The minor differences between SQL and HQL make it so you can leverage what you already know about SQL. Criteria queries provide a more programmer-friendly approach to GORM queries. Instead of <em>declaring</em> queries as <code>String</code>s in your Groovy code, you can <em>build</em> them using Groovy. Take a look at the following comparison of a SQL query and its criteria query equivalent.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>SQL</th>
+                    
+                        <th>Criteria query</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">SELECT *                         </span></td>
+                    
+                        <td><span style="font-family: monospace"></span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">FROM product                     </span></td>
+                    
+                        <td><span style="font-family: monospace">Product.withCriteria {</span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">WHERE name = '12 inch teddy bear'</span></td>
+                    
+                        <td><span style="font-family: monospace">&nbsp;&nbsp;&nbsp;&nbsp;eq('name', '12 inch teddy bear')</span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">&nbsp;</span></td>
+                    
+                        <td><span style="font-family: monospace">}</span></td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p>In the listing above I aligned the lines of both queries so that each line's intent matches. Like with HQL, I'll skip over the equivalent of the <em>select</em> clause.</p>
+<p>Criteria queries are created with a builder. The criteria query builder features methods used to assemble a query. The methods provide the means to specify restrictions, joins, sorting, etc. In the example above, <code>HibernateCriteriaBuilder.eq(String propertyName, Object value)</code> is used to add an equality restriction to the query.</p>
+<h2>The builder</h2>
+<p>The builder is actually a facade for a Hibernate <code>Criteria</code>. As such, it expects you to provide a <code>Closure</code> in which the builder methods are called.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">createCriteria</span><span class="o">()</span>
+</span><span class='line'><span class="kt">def</span> <span class="n">criteria</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">buildCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">eq</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><code>GormEntity.createCriteria()</code> returns a <code>HibernateCriteriaBuilder</code>. Then, <code>HibernateCriteriaBuilder.buildCriteria(Closure)</code> executes the provided closure to assemble a Hibernate Criteria, which it then returns. To continue building the query after calling <code>buildCriteria(Closure)</code> you'd have to use the Hibernate Criteria methods.</p>
+<p><div class="alert alert-info" role="alert"><p>The <code>buildCriteria(Closure)</code> <code>Closure</code>'s delegate is a <code>HibernateCriteriaBuilder</code>.</p>
+</div>
+</p>
+<p>Unlike the traditional builder design pattern, a GORM criteria query does not allow you to call the builder methods directly. For example, the following code does not work:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">createCriteria</span><span class="o">()</span>
+</span><span class='line'>    
+</span><span class='line'><span class="n">builder</span><span class="o">.</span><span class="na">eq</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">)</span> <span class="c1">// Throws IllegalArgumentException</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><div class="alert alert-danger" role="alert">java.lang.IllegalArgumentException: Call to [eq] with propertyName [name] and value [12 inch teddy bear] not allowed here.</div>
+</p>
+<p><code>buildCriteria(Closure)</code> is seldom used because you're unlikely to use the Hibernate Criteria that it returns. Instead, criteria queries can be built <em>and</em> executed by the builder. Speaking of executing queries, lets do just that.</p>
+<h2>Executing a criteria query</h2>
+<p>Go ahead and run the following criteria query in the Grails console.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">products</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">eq</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><code>GormEntity.withCriteria(Closure)</code> does the following:</p>
+<ol>
+<li>Creates a <code>HibernateCriteriaBuilder</code>.</li>
+<li>Uses the builder to assemble a Hibernate <code>Criteria</code>.</li>
+<li>Executes the Criteria and returns the results.</li>
+</ol>
+<p>Lets do each step on its own so you can see what's happening.</p>
+<h3>Create the builder</h3>
+<p>First, create the <code>HibernateCriteriaBuilder</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">createCriteria</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Now that you have a builder, use it to create a Hibernate <code>Criteria</code>.</p>
+<h3>Build the query</h3>
+<p>This is the point at which you actually create the query.</p>
+<ol>
+<li>First, call <code>buildCriteria(Closure)</code> on the builder.</li>
+<li>Within the <code>Closure</code> call <code>eq(String propertyName, Object value)</code> to get the <code>Product</code> whose <code>name</code> (the property) is <code>'12 inch teddy bear'</code> (the value).</li>
+</ol>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="kt">def</span> <span class="n">criteria</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">buildCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">eq</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h3>Run the query</h3>
+<p>Finally, run the query by calling <code>list()</code> on the <code>Criteria</code> instance.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="kt">def</span> <span class="n">products</span> <span class="o">=</span> <span class="n">criteria</span><span class="o">.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Like the HQL query, the criteria query doesn’t specify which domain properties to return. Instead it returns domain instances. The domain class on which the <code>withCriteria</code> method is executed determines which domain class instances to return.</p>
+<p><div class="alert alert-info" role="alert"><p>A projection can be used to return other domain class instances and/or properties.</p>
+</div>
+</p>
+<h3>Get first (or only) result</h3>
+<p>Sometimes your query returns a single result. Or you want only the first result. Instead of retrieving the first element in the resulting list, you can...</p>
+<ol>
+<li>Create the builder with <code>createCriteria()</code>.</li>
+<li>Call <code>HibernateCriteria.get(Closure)</code> to construct and execute the query.</li>
+</ol>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">product</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">createCriteria</span><span class="o">().</span><span class="na">get</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">eq</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>Restrictions</h2>
+<p>Earlier, I listed various HQL restrictions. Here are their equivalents as criteria queries.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>Description</th>
+                    
+                        <th>SQL</th>
+                    
+                        <th>Criteria</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td>equality</td>
+                    
+                        <td>name = ‘12 inch teddy bear</td>
+                    
+                        <td>eq('name', '12 inch teddy bear')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>inequality</td>
+                    
+                        <td>name <> ‘12 inch teddy bear</td>
+                    
+                        <td>ne('name', '12 inch teddy bear')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>like</td>
+                    
+                        <td>name like '%teddy bear%'</td>
+                    
+                        <td>like('name', '%teddy bear%')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>case-insensitive like</td>
+                    
+                        <td>lower(name) like lower('%Teddy Bear%')</td>
+                    
+                        <td>ilike('name', '%Teddy Bear%')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>between</td>
+                    
+                        <td>price between 4 and 8</td>
+                    
+                        <td>between('price', 4.0, 8.0)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not between</td>
+                    
+                        <td>price not between 4 and 8</td>
+                    
+                        <td>not { between('price', 4.0, 8.0) }</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>in</td>
+                    
+                        <td>price in (3.49, 9.49)</td>
+                    
+                        <td>inList('price', [3.49, 9.49])</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not in</td>
+                    
+                        <td>not in (3.49, 9.49)</td>
+                    
+                        <td>not { inList 'price', [3.49, 9.49] }</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than</td>
+                    
+                        <td>price < 4.99</td>
+                    
+                        <td>lt('price', 4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than</td>
+                    
+                        <td>price > 4.99</td>
+                    
+                        <td>gt('price', 4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than or equal to</td>
+                    
+                        <td>price <= 4.99</td>
+                    
+                        <td>le('price', 4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than or equal to</td>
+                    
+                        <td>price >= 4.99</td>
+                    
+                        <td>ge('price', 4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is null</td>
+                    
+                        <td>state is null</td>
+                    
+                        <td>isNull('state')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is not null</td>
+                    
+                        <td>state is not null</td>
+                    
+                        <td>isNotNull('state')</td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p>Unlike HQL which uses expressions to create restrictions, criteria queries use method calls.</p>
+<p>Like HQL, criteria queries provide a way to create restrictions based on the size of a collection. The table below compares some size-based HQL restrictions with their equivalents in a criteria query.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>Description</th>
+                    
+                        <th>HQL</th>
+                    
+                        <th>Criteria</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td>equality</td>
+                    
+                        <td>size(products) = 0</td>
+                    
+                        <td>sizeEq('products', 0)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>inequality</td>
+                    
+                        <td>size(products) != 0</td>
+                    
+                        <td>sizeNe('products', 0)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than</td>
+                    
+                        <td>size(products) < 3</td>
+                    
+                        <td>sizeLt('products', 3)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than</td>
+                    
+                        <td>size(products) > 3</td>
+                    
+                        <td>sizeGt('products', 3)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than or equal to</td>
+                    
+                        <td>size(products) >= 3</td>
+                    
+                        <td>sizeGe('products', 3)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than or equal to</td>
+                    
+                        <td>size(products) <= 3</td>
+                    
+                        <td>sizeLe('products', 3)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>between</td>
+                    
+                        <td>size(products) between 3 and 5</td>
+                    
+                        <td>N/A</td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p>Like the prior list of restrictions, criteria queries rely on method calls, not expressions. That's why there are multiple <em>size?(String propertyName, int value)</em> criteria methods and only one <code>size()</code> HQL function.</p>
+<h3>What about between?</h3>
+<p>You may have noticed that criteria queries do not have the equivalent of HQL's expression <code>size(products) between 3 and 5</code>. You can work around this by using <code>sizeGe()</code> along with <code>sizeLe()</code> for an inclusive <em>between</em>, and <code>sizeGt()</code> along with <code>sizeLt()</code> for exclusive <em>between</em>. Either approach requires an <em>and</em> conjunction. So lets look at some conjunctions.</p>
+<h2>Conjunctions</h2>
+<p>You may be wondering how criteria queries handle <em>and</em> and <em>or</em> conjunctions. For example, examine the where clause in the following SQL query.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">product</span> 
+</span><span class='line'><span class="k">WHERE</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;%bear%&#39;</span> <span class="k">and</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The <em>like</em> and <em>greater than (>)</em> restrictions must both evaluate to <em>true</em> for a given record to be selected. Lets look at how you can express the same restrictions in a criteria query. Begin with a query with only a single restriction.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">like</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;%bear%&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Next, simply add the appropriate method call for the other restriction.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="n">like</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;%bear%&#39;</span><span class="o">)</span> <span class="c1">// This is the restriction you had already created. </span>
+</span><span class='line'>    <span class="n">gt</span><span class="o">(</span><span class="s1">&#39;price&#39;</span><span class="o">,</span> <span class="mf">8.0</span><span class="o">)</span>       <span class="c1">// This is the new one. </span>
+</span><span class='line'>    <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>That's really all there is to it. By default, when a query contains more than one restriction they are joined by an <em>and</em> conjunction. An <em>and</em> conjunction is created with <code>HibernateCriteriaBuilder.and(Closure)</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">and</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">like</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;%bear%&#39;</span><span class="o">)</span>
+</span><span class='line'>        <span class="n">gt</span><span class="o">(</span><span class="s1">&#39;price&#39;</span><span class="o">,</span> <span class="mf">8.0</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Similarly, an <em>or</em> conjunction is created with <code>HibernateCriteriaBuilder.or(Closure)</code>. Again, starting with SQL…</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">product</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="n">price</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">.</span><span class="mi">99</span> <span class="k">or</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">.</span><span class="mi">99</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The equivalent criteria query is...</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">or</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">lt</span><span class="o">(</span><span class="s1">&#39;price&#39;</span><span class="o">,</span> <span class="mf">4.99</span><span class="o">)</span>
+</span><span class='line'>        <span class="n">gt</span><span class="o">(</span><span class="s1">&#39;price&#39;</span><span class="o">,</span> <span class="mf">8.99</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>As you can see, restrictions built within the <code>or(Closure)</code> closure become the <em>or</em> conjunction. Finally, combining <em>and</em> with <em>or</em>…</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">Product</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="p">(</span><span class="n">price</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">.</span><span class="mi">99</span> <span class="k">or</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">.</span><span class="mi">99</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;%bear%&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The equivalent criteria query is…</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">or</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">lt</span><span class="o">(</span><span class="s1">&#39;price&#39;</span><span class="o">,</span> <span class="mf">4.99</span><span class="o">)</span>
+</span><span class='line'>        <span class="n">gt</span><span class="o">(</span><span class="s1">&#39;price&#39;</span><span class="o">,</span> <span class="mf">8.99</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="n">like</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">,</span> <span class="s1">&#39;%bear%&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Something that deluded me when I first learned about criteria queries is that they are not query definitions. They actually consist of Groovy code. In hindsight, I can't believe I overlooked this. But it means its possible to construct queries dynamically without resorting to the shenanigans you may be accustomed to with <code>String</code>s of SQL statements.  Up next is another builder approach to creating queries.</p>
+<h1>Where query</h1>
+<p>Like criteria queries, where queries use the builder design pattern. However, restrictions are created with Groovy expressions rather than builder method calls.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>SQL</th>
+                    
+                        <th>Where query</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">SELECT *</span></td>
+                    
+                        <td><span style="font-family: monospace"></span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">FROM product                         </span></td>
+                    
+                        <td><span style="font-family: monospace">Product.where {</span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">WHERE name = '12 inch teddy bear'    </span></td>
+                    
+                        <td><span style="font-family: monospace">&nbsp;&nbsp;&nbsp;&nbsp;name == '12 inch teddy bear'</span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">&nbsp;</span></td>
+                    
+                        <td><span style="font-family: monospace">}.list()</span></td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p><code>GormEntity.where(Closure)</code> expects a closure in which Groovy expressions are used to create restrictions. <code>where(Closure)</code> returns a <code>DetachedCriteria</code>. Finally, <code>DetachedCriteria.list()</code> executes the query and returns the results.</p>
+<p>In comparison to criteria queries, it's worth pointing out is that with criteria queries you specify the property name as a <code>String</code> (ex. 'name'), while in a where query the property is specified like any other Groovy property.</p>
+<p>Now it's your turn to create a where query. In the Grails console, first prepare the <code>Closure</code> that will contain the query. Since you'll be quering the <code>Product</code> domain class, call <code>Product.where(Closure)</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Then, add the equality restriction comparing the <code>name</code> property to the <code>String</code> literal <code>'12 inch teddy bear'</code>. Its just a matter of using Groovy's equality (==) operator.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;12 inch teddy bear&#39;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Finally, execute the query by calling <code>DetachedCriteria.list()</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="n">builder</span><span class="o">.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>Get first (or only) result</h2>
+<p>Sometimes your query returns a single result. Or you want only the first result. Instead of retrieving the first element in the resulting list, you can call <code>DetachedCriteria.get()</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">product</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;12 inch teddy bear&#39;</span>
+</span><span class='line'><span class="o">}.</span><span class="na">get</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>Restrictions</h2>
+<p>The following table lists various SQL restrictions and their equivalent where query restrictions.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>Description</th>
+                    
+                        <th>SQL</th>
+                    
+                        <th>Where query</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td>equality</td>
+                    
+                        <td>name = ‘12 inch teddy bear</td>
+                    
+                        <td>name == '12 inch teddy bear'</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>inequality</td>
+                    
+                        <td>name <> ‘12 inch teddy bear</td>
+                    
+                        <td>name != '12 inch teddy bear'</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>like</td>
+                    
+                        <td>name like '%teddy bear%'</td>
+                    
+                        <td>name ==~ '%teddy bear%'</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>case-insensitive like</td>
+                    
+                        <td>lower(name) like lower('%Teddy Bear%')</td>
+                    
+                        <td>name =~ '%Teddy Bear%'</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>between</td>
+                    
+                        <td>price between 4 and 8</td>
+                    
+                        <td>price in 4.0..8.0</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not between</td>
+                    
+                        <td>price not between 4 and 8</td>
+                    
+                        <td>!(price in 4.0..8.0)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>in</td>
+                    
+                        <td>price in (3.49, 9.49)</td>
+                    
+                        <td>price in [3.49, 9.49]</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not in</td>
+                    
+                        <td>not in (3.49, 9.49)</td>
+                    
+                        <td>!(price in [3.49, 9.49])</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than</td>
+                    
+                        <td>price < 4.99</td>
+                    
+                        <td>price < 4.99 </td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than</td>
+                    
+                        <td>price > 4.99</td>
+                    
+                        <td>price > 4.99 </td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than or equal to</td>
+                    
+                        <td>price <= 4.99</td>
+                    
+                        <td>price <= 4.99 </td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than or equal to</td>
+                    
+                        <td>price >= 4.99</td>
+                    
+                        <td>price >= 4.99 </td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is null</td>
+                    
+                        <td>state is null</td>
+                    
+                        <td>state == null</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is not null</td>
+                    
+                        <td>state is not null</td>
+                    
+                        <td>state != null</td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p>Like HQL, and criteria queries, where queries can perform operations based on the size of a collection association. It's done with the <code>Collection.size()</code> method. The table below compares various size-based HQL restrictions with their where query equivalents.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>Description</th>
+                    
+                        <th>HQL</th>
+                    
+                        <th>Where</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td>equality</td>
+                    
+                        <td>size(products) = 0</td>
+                    
+                        <td>products.size() == 0</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>inequality</td>
+                    
+                        <td>size(products) != 0</td>
+                    
+                        <td>products.size() != 0</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than</td>
+                    
+                        <td>size(products) < 3</td>
+                    
+                        <td>products.size() < 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than</td>
+                    
+                        <td>size(products) > 3</td>
+                    
+                        <td>products.size() > 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than or equal to</td>
+                    
+                        <td>size(products) >= 3</td>
+                    
+                        <td>products.size() >= 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than or equal to</td>
+                    
+                        <td>size(products) <= 3</td>
+                    
+                        <td>products.size() <= 3</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>between</td>
+                    
+                        <td>size(products) between 3 and 5</td>
+                    
+                        <td>N/A</td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<h3>Between is missing here too!</h3>
+<p>Where queries also do not have the equivalent of HQL's expression <code>size(products) between 3 and 5</code>. You can work around this by using the <code>&gt;=</code> and <code>&lt;=</code> operators for an inclusive <em>between</em>, or <code>&gt;</code> and <code>&lt;</code> for exclusive <em>between</em>. An example of an inclusive <em>between</em> is: <code>products.size() &gt;= 3 &amp;&amp; products.size() &lt;= 5</code>. Either approach requires an <em>and</em> conjunction.</p>
+<h2>Conjunctions</h2>
+<p>Where queries handle <em>and</em> and <em>or</em> conjunctions using Groovy logical operators. When a query contains more than one restriction by default they are joined an <em>and</em> conjunction. For example, examine the where clause in the following SQL query.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">product</span> 
+</span><span class='line'><span class="k">WHERE</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;%bear%&#39;</span> <span class="k">and</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Two conditions must be met to select a given product. The equivalent restriction can be expressed as a where query like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">name</span> <span class="o">==~</span> <span class="s1">&#39;%bear%&#39;</span>
+</span><span class='line'>    <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span>
+</span><span class='line'><span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Which can also be expressed using the <code>&amp;&amp;</code> operator like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">name</span> <span class="o">==~</span> <span class="s1">&#39;%bear%&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span>
+</span><span class='line'><span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>An <em>or</em> conjunction is created with the <code>||</code> operator. Again, starting with SQL…</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">product</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="n">price</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">.</span><span class="mi">99</span> <span class="k">or</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">.</span><span class="mi">99</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The equivalent where query is as follows:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">price</span> <span class="o">&lt;</span> <span class="mf">4.99</span> <span class="o">||</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mf">8.99</span>
+</span><span class='line'><span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>As you can see, restrictions built within the <code>||</code> operator become the <em>or</em> conjunction. Finally, combining <em>and</em> with <em>or</em>…</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">Product</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="p">(</span><span class="n">price</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">.</span><span class="mi">99</span> <span class="k">or</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">.</span><span class="mi">99</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;%bear%&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The equivalent where query is…</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">price</span> <span class="o">&lt;</span> <span class="mf">4.99</span> <span class="o">||</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mf">8.99</span>
+</span><span class='line'>    <span class="n">name</span> <span class="o">==~</span> <span class="s1">&#39;%bear%&#39;</span>
+</span><span class='line'><span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<h1>Dynamic finder</h1>
+<p>Dynamic finders provide a way to execute very simple queries.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>SQL</th>
+                    
+                        <th>Dynamic finder</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">SELECT *</span></td>
+                    
+                        <td><span style="font-family: monospace">&nbsp;</span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">FROM product                         </span></td>
+                    
+                        <td><span style="font-family: monospace">Product.findAllByName('12 inch teddy bear')</span></td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td><span style="font-family: monospace">WHERE name = '12 inch teddy bear'    </span></td>
+                    
+                        <td><span style="font-family: monospace">&nbsp;</span></td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<p>A Dynamic finder is a domain class method following a specific naming convention. The term dynamic finder comes from the fact that the method doesn’t actually exist. Thank you, Groovy MOP.</p>
+<p>The method naming convention loosely defined is <em>domainClass.findAllByPropertyNameInCamelCaseWithAComparison(and, some, parameters)</em>.</p>
+<p>Using the query above as an example...</p>
+<ol>
+<li><em>findAllBy</em> indicates that you want to execute a dynamic finder which returns one or more <code>Product</code>s.</li>
+<li><em>Name</em> specifies the property.</li>
+<li>The equals operator is used by default, so it's left unspecified.</li>
+<li>'12 inch teddy bear' is the property value to compare against.</li>
+</ol>
+<p><div class="alert alert-info" role="alert"><p>The <code>findAllBy</code> dynamic finder is implemented by <code>FindAllByFinder</code>. A list of dynamic finders can be found in the property <code>GormEntity.gormDynamicFinders</code>.</p>
+</div>
+</p>
+<p>Lets give a dynamic finder a go. Create a one to return <em>all</em> of the <code>Product</code>s with a <code>price</code> of <code>3.49</code>. In the Grails console, begin with the domain class and <code>findAllBy</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">findAllBy</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Next, append the property name in camel case.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">findAllByPrice</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>That completes the method name. Now you need to add the value <code>3.49</code> as a parameter.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">findAllByPrice</span><span class="o">(</span><span class="mf">3.49</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Finally, run it to see the three matching <code>Product</code>s.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">4</span><span class="o">,</span> 
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">5</span><span class="o">,</span> 
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">6</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<h3>Get first (or only) result</h3>
+<p>If your query returns a single result, or you only want to use the first result begin the dynamic finder method with <em>findBy</em> rather than <em>findAllBy</em>:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">product</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="na">findByName</span><span class="o">(</span><span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Like all the GORM queries discussed so far, the dynamic finder query does not specify the equivalent of a SELECT clause. In fact, dynamic finders do not support the notion. They always return a list of domain class instances.</p>
+<h2>Restrictions</h2>
+<p>The following table lists various SQL restrictions and the equivalent dynamic finder methods.</p>
+<p><div class="panel panel-default">
+    
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    
+                        <th>Description</th>
+                    
+                        <th>SQL</th>
+                    
+                        <th>Dynamic finder</th>
+                    
+                <tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    
+                        <td>equality</td>
+                    
+                        <td>name = ‘12 inch teddy bear</td>
+                    
+                        <td>Product.findAllByName('12 inch teddy bear')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>inequality</td>
+                    
+                        <td>name <> ‘12 inch teddy bear</td>
+                    
+                        <td>Product.findAllByNameNotEqual('12 inch teddy bear')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>like</td>
+                    
+                        <td>name like '%teddy bear%'</td>
+                    
+                        <td>Product.findAllByNameLike('%teddy bear%')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>case-insensitive like</td>
+                    
+                        <td>lower(name) like lower('%Teddy Bear%')</td>
+                    
+                        <td>Product.findAllByNameIlike('%Teddy Bear%')</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>between</td>
+                    
+                        <td>price between 4 and 8</td>
+                    
+                        <td>Product.findAllByPriceBetween(4, 8)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not between</td>
+                    
+                        <td>price not between 4 and 8</td>
+                    
+                        <td>N/A</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>in</td>
+                    
+                        <td>price in (3.49, 9.49)</td>
+                    
+                        <td>Product.findAllByPriceInList([3.49, 9.49])</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>not in</td>
+                    
+                        <td>not in (3.49, 9.49)</td>
+                    
+                        <td>N/A</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than</td>
+                    
+                        <td>price < 4.99</td>
+                    
+                        <td>Product.findAllByPriceLessThan( 4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than</td>
+                    
+                        <td>price > 4.99</td>
+                    
+                        <td>Product.findAllByPriceGreaterThan(4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>less than or equal to</td>
+                    
+                        <td>price <= 4.99</td>
+                    
+                        <td>Product.findAllByPriceLessThanEquals(4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>greater than or equal to</td>
+                    
+                        <td>price >= 4.99</td>
+                    
+                        <td>Product.findAllByPriceGreaterThanEquals(4.99)</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is null</td>
+                    
+                        <td>state is null</td>
+                    
+                        <td>Address.findAllByStateIsNull()</td>
+                    
+                <tr>
+            
+                <tr>
+                    
+                        <td>is not null</td>
+                    
+                        <td>state is not null</td>
+                    
+                        <td>Address.findAllByStateIsNotNull()</td>
+                    
+                <tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</p>
+<h2>Conjunctions</h2>
+<p>Dynamic finders support <em>and</em> and <em>or</em> conjunctions, but without order of precedence. For example, examine the where clause in the following SQL query.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">product</span> 
+</span><span class='line'><span class="k">WHERE</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;%bear%&#39;</span> <span class="k">and</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The equivalent dynamic finder is…</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">findAllByNameLikeAndPriceGreaterThan</span><span class="o">(</span><span class="s1">&#39;%bear%&#39;</span><span class="o">,</span> <span class="mi">8</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>In the dynamic finder example above, the <em>NameLike</em> and <em>PriceGreaterThan</em> parts of the method are joined by an <em>And</em>. Then, the parameters are specified in the same order as the properties are declared in the method: <em>name</em>, then <em>price</em>.</p>
+<p>An <em>or</em> conjunction works the same way:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">findAllByPriceLessThanOrPriceGreaterThan</span><span class="o">(</span><span class="mf">4.99</span><span class="o">,</span> <span class="mf">8.99</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It’s possible to combine <em>and</em> and <em>or</em> as long as order of precedence is not important. For example, the following SQL query cannot be represented as a dynamic finder:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">product</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="p">(</span><span class="n">price</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">.</span><span class="mi">99</span> <span class="k">or</span> <span class="n">price</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">.</span><span class="mi">99</span><span class="p">)</span> <span class="k">and</span> <span class="n">name</span> <span class="k">like</span> <span class="s1">&#39;%bear%&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<h1>Conclusion</h1>
+<p>That concludes this article in the GORM for SQLaddicts series. Now that you know how to construct the equivalent of a SQL <em>where</em> clause using a criteria query, where query, and dynamic finder, you're ready to tackle the equivalent of the <em>from</em> clause. <a href="/articles/gorm-for-sqladdicts-from-clause/">Ready?</a></p>
+</div>
+
+  <footer>
+    <p class="meta text-muted">
+    </p>
+    
+      <div class="sharing text-center">
+<p>Useful huh? Share it with a friend!</p>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-twitter">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-google-plus">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-facebook">&nbsp;&nbsp;&nbsp;</span></a>
+
+    
+    <a style="font-size: 25px;" href="mailto:?to=&subject=How to emulate a WHERE clause in Grails' GORM.&body=Your personalized message goes here. http://www.emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><span class="fa fa-envelope"></span></a>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    $(".sharing .fa-twitter").click(function(e) {
+        e.preventDefault();
+        
+        var url = "https://twitter.com/share?url=http://www.emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/&text=How+to+emulate+a+WHERE+clause+in+Grails%27+GORM."
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-facebook").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://www.facebook.com/sharer/sharer.php?u=http://www.emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/";
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-google-plus").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://plus.google.com/share?url=http://www.emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+});
+</script>
+
+    
+  </footer>
+</article>
+
+
+                </div>
+            <div>
+            
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2015 - Emmanuel Rosa<br>
+  <small>
+      <span class="credit">Powered by <a href="http://sysgears.com/grain/">Grain</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a> and <a href="http://fontawesome.io">Font Awesome</a></span>.
+      <br><span class="credit">Build ed28291017d6
+.</span>
+  </small>
+</p>
+
+</div>
+</footer>
+    
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
+
+
+  </body>
+</html>

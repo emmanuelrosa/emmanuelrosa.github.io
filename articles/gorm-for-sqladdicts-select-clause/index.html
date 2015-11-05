@@ -1,0 +1,554 @@
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GORM for SQLaddicts: SELECT clause - EmmanuelRosa.com</title>
+  <meta name="author" content="Emmanuel Rosa">
+
+  
+    <meta name="description" content="How to use GORM to select (project) domain class properties.">
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="canonical" href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">
+  <link href="/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">
+  <meta property="og:title" content="GORM for SQLaddicts: SELECT clause - EmmanuelRosa.com">
+  <meta property="og:description" content="How to use GORM to select (project) domain class properties.">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="EmmanuelRosa.com" />
+  <meta property="og:updated_time" content="2015-11-05T17:12:50-05:00" />
+  <meta property="og:image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+
+  <script src="/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
+<script src="/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
+<script src="/javascripts/cookie-alert-b3313f61b59563307884685d19e7849d.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="/assets/font-awesome/css/font-awesome.min.css">
+
+
+  
+  <link href="/stylesheets/screen-1d4d55e7d023f209097a7b94db951d7e.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+
+  
+   <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-69493301-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+
+
+</head>
+
+
+  
+  <body 
+     >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">EmmanuelRosa.com</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a rel="index" href="/"><span class="fa fa-rss-square hidden-sm hidden-md hidden-lg"></span> Blog</a>
+                </li>
+                <li >
+                    <a href="/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Archives</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a class="fa fa-weixin" href="/chat/"><span class="hidden-sm hidden-md hidden-lg"> Chat</span></a>
+                
+            </ul>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="cookie-alert" class="alert alert-warning alert-dismissible fade in hidden">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>Watch out, I use cookies!</strong> Now you know. Click <a href="https://www.google.com/policies/privacy/partners/">here</a> for enlightenment.
+      </div>
+      <div id="main" role="main" class="container">
+        <div id="content">
+            <div class="row">
+                <div class="page-content col-md-12">
+                    
+<meta itemprop="name" content="EmmanuelRosa.com" />
+
+<meta itemprop="url" content="http://emmanuelrosa.com" />
+<article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+  
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-11-03T12:01:00-05:00" data-updated="true" itemprop="datePublished dateCreated">Tue Nov 03 2015</time>
+
+
+<span>|</span> <time datetime="2015-11-05T17:12:50-05:00" class="updated" itemprop="dateModified">Updated Thu Nov 05 2015</time>
+
+
+        
+      </p>
+    
+    <h1 class="entry-title" itemprop="name headline">GORM for SQLaddicts: SELECT clause
+        
+    </h1>
+  </header>
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>This article in the GORM for SQLaddicts series describes how to choose which domain class properties to return in your GORM query. It's the equivalent of the SQL <em>select</em> clause.</p>
+<!--more-->
+<p><h1>GORM for SQLaddicts</h1>
+<p>Welcome to the GORM for SQLaddicts series. A collection of articles dedicated to experienced SQL programmers who want to learn how to query GORM, the Grails object-relational mapper.</p>
+<p>Throughout this series you will learn how to</p>
+<ol>
+<li><a href="/articles/gorm-for-sqladdicts-where-clause/">WHERE - Add restrictions to a query</a></li>
+<li><a href="/articles/gorm-for-sqladdicts-from-clause/">FROM - Work with associations and joins</a></li>
+<li><strong>SELECT - Return multiple properties and/or domain classes</strong></li>
+<li>GROUP BY - Use aggregate functions <em>(coming soon)</em></li>
+</ol>
+<h2>Getting started</h2>
+<p>To follow along you'll need <a href="https://grails.org/">Grails</a> 3.0.5 and <a href="https://www.mercurial-scm.org/">Mercurial</a>. With Grails and Mercurial installed you can download the source code and run the Grails console.</p>
+<h3>Setup</h3>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>hg clone ssh://hg@bitbucket.org/erosa/gormtut
+</span><span class='line'><span class="nv">$ </span><span class="nb">cd </span>gormtut 
+</span><span class='line'><span class="nv">$ </span>grails console
+</span></code></pre></td></tr></table></div></figure>
+<p>Once the Grails console window appears, copy &amp; paste the following code into the Grails console.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">com.emmanuelrosa.gormtut.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withNewSession</span> <span class="o">{</span> <span class="n">session</span> <span class="o">-&gt;</span>
+</span><span class='line'>    <span class="c1">// Run GORM queries within this Closure.</span>
+</span><span class='line'>    
+</span><span class='line'>    
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Now you're set up to execute GORM queries. All you need to do is write the query within the <code>Closure</code> and run the code (Script->Run or Command-R).</p>
+<h3>Domain classes</h3>
+<p>The examples in this article reference the <code>Vendor</code>, <code>Address</code>, and <code>Product</code> domain classes. See the diagram below to see how the domain classes are related to each other.</p>
+<p><img src="/images/sqladdicts-domains-dd608e6240ea469473399853225b6c94.svg" alt="Domain class diagram" /></p>
+</p>
+<p>Throughout this series I've dedicated each article to a single SQL clause: (see the
+<a href="/articles/gorm-for-sqladdicts-where-clause/"><em>where</em></a> and <a href="/articles/gorm-for-sqladdicts-from-clause/"><em>from</em></a> articles).
+And as you may have noticed, it's impossible to use only one of these SQL clauses in isolation. The same applies to GORM. Both previous articles utilize the <em>select</em> clause in some way. Lets learn about the details.</p>
+<h1>SELECTing properties</h1>
+<p>In the <a href="/articles/gorm-for-sqladdicts-where-clause/"><em>where</em></a> clause article I said not to be concerned with the <em>select</em> clause just yet. Now the time has come to figure this thing out. Say you want to get a list of all the <code>Vendor</code> names. In SQL you can accomplish this with the following query:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Thus far, your queries return domain class instances. As an example, you <em>could</em> list all of the <code>Vendor</code> names by getting all of the <code>Vendor</code> instances and then using Groovy to grab the <code>name</code> properties:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">findAll</span><span class="o">()*.</span><span class="na">name</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>But lets face it, you can do better. Enough with the suspense. Here's the HQL:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The HQL is straight-forward: it returns the <code>name</code> property of all the <code>Vendor</code> domain class instances. The output looks like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;Bears Emporium&#39;</span><span class="o">,</span> <span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Furball Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;Jouets et ours&#39;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Lets add another property:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">address</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output looks like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">1</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears Emporium&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">2</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">3</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Furball Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">4</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">5</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Jouets et ours&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">6</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output is rows of <code>List</code>s, with each <code>List</code> containing two elements: the <code>Vendor</code> <code>name</code> and <code>Address</code>. Interesting huh? How about returning an <code>Address</code> property, such as <code>country</code>, instead?</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">.</span><span class="n">country</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output of which is:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears Emporium&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Furball Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;England&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Jouets et ours&#39;</span><span class="o">,</span> <span class="s1">&#39;France&#39;</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Cool! Look how easy that was! Lets try one more thing: add the <code>Vendor.products</code> property.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">.</span><span class="n">country</span><span class="p">,</span> <span class="n">products</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><div class="alert alert-danger" role="alert">org.springframework.jdbc.BadSqlGrammarException: Hibernate operation: could not prepare statement; bad SQL grammar</div>
+</p>
+<p>That didn't go so well. The issue is that <code>Vendor</code> has a one-to-many relationship to <code>Product</code> through the <code>products</code> association. This means the <code>products</code> property is a collection and thus requires a different approach. I'll come back to this. Lets do some criteria and where queries.</p>
+<h2>Criteria</h2>
+<p>The equivalent of a <em>select</em> clause in criteria (and where) queries is called a projection. Yea! Yes, I'm talking about those mysterious projections you've seen plastered all over Stack Overflow.</p>
+<p>Once you see a projection in action, it will click.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">println</span> <span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;address&#39;</span><span class="o">)</span>           
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Notice how each <em>selected</em> property corresponds to a call to <code>HibernateCriteriaBuilder.property(String propertyName)</code>. Mystery solved <span class="fa fa-smile-o"< /span></p>
+<p>What's with the <code>println</code>? The problem is this: The <code>Address</code> instances are lazy-loaded when the query executes: you get a proxy rather than actual <code>Address</code> instances. The proxy then retrieves the data when you try to access it, as will happen when the Grails console attempts to print the result. The <code>println</code> forces the proxy to <em>resolve</em> within the <code>withNewSession(Closure)</code> Closure preventing this:</p>
+<p><div class="alert alert-danger" role="alert">org.hibernate.LazyInitializationException: could not initialize proxy - no Session</div>
+</p>
+<p>For clarity, I'll exclude the <code>println</code> from the remaining examples. Lets replicate the HQL which returns the <code>Vendor.name</code> and <code>Vendor.address.country</code> properties.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       
+</span><span class='line'>       <span class="n">address</span> <span class="o">{</span>
+</span><span class='line'>           <span class="n">property</span><span class="o">(</span><span class="s1">&#39;country&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="o">}</span>          
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Ah, this is different. To access a nested property:</p>
+<ol>
+<li>call a method named like the first property (ex. <code>address(Closure)</code>).</li>
+<li>Within the <code>Closure</code> call <code>property(String)</code> with a property name (ex. <code>country</code>) relative to the property represented by the method call (ex. <code>address</code>).</li>
+</ol>
+<p>It takes some getting used to, but it's not so bad. So, what can a where query do for you?</p>
+<h2>Where query</h2>
+<p>Projections work differently in where queries. Up first are the <code>name</code> and <code>address</code> properties.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">where</span> <span class="o">{}</span>
+</span><span class='line'>   <span class="o">.</span><span class="na">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;address&#39;</span><span class="o">)</span>
+</span><span class='line'>   <span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>I modified the where query syntax I normally use to clarify the fact that in where queries the projections are specified <em>outside</em> of the <code>GormEntity.where(Closure)</code> <code>Closure</code>. Otherwise, the projections <code>Closure</code> is the same as the one used in the equivalent criteria query. But, there's a caveat. Lets see what happens when you try to project <code>address.country</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">where</span> <span class="o">{}</span>
+</span><span class='line'>   <span class="o">.</span><span class="na">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       
+</span><span class='line'>       <span class="n">address</span> <span class="o">{</span>
+</span><span class='line'>           <span class="n">property</span><span class="o">(</span><span class="s1">&#39;country&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="o">}</span>          
+</span><span class='line'>   <span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It doesn't work. What a downer. In short, projections are just better supported by criteria queries.</p>
+<p>Earlier on you tried selecting/projecting the <code>Vendor.products</code> property and got a nasty error. Lets discover what you can do to handle such <code>Collection</code> properties.</p>
+<h1>SELECTing collections</h1>
+<p>Since you know SQL, the easiest way to learn how to deal with <code>Collections</code> is to look at what the output looks like:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">1</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">2</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">3</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">4</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">5</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">6</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">7</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">8</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">9</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Keeping in mind that a <code>Vendor</code> has a one-to-many relationship with <code>Product</code>, you can see in the table-like output above what looks like an... <em>inner join</em>! Do you see it? OK, let me show you the query that produced that output.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">product</span> <span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">products</span> <span class="k">AS</span> <span class="n">product</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>By joining the <code>Product</code> domain class through the existing <code>Vendor.products</code> association each related <code>Product</code> becomes available in the query. Note that to select the <code>Vendor.name</code> the domain class alias (ex <code>vnd</code>) must be used. Joining is covered thoroughly in the <a href="/articles/gorm-for-sqladdicts-from-clause/"><em>from clause</em></a> article.</p>
+<p>Lets build on this and select a <code>Product</code> property.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">product</span><span class="p">.</span><span class="n">name</span> <span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">products</span> <span class="k">AS</span> <span class="n">product</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Complimentary output:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;8 inch teddy bear&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;18 inch teddy bear&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Fish bean bag toy&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Bird bean bag toy&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Rabbit bean bag toy&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Raggedy Ann&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;King doll&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;Queen doll&#39;</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Yep, it's that easy. Moving on...</p>
+<h2>Criteria query</h2>
+<p>I'll tell you right off the bat that you cannot project the associated domain classes like you can with HQL. For instance, neither one of these queries will work:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="c1">// This won&#39;t work.</span>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;products&#39;</span><span class="o">)</span>           
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Neither will this.</span>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">createAlias</span><span class="o">(</span><span class="s1">&#39;products&#39;</span><span class="o">,</span> <span class="s1">&#39;product&#39;</span><span class="o">)</span>
+</span><span class='line'>   
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;product&#39;</span><span class="o">)</span>           
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>But, you can project an association's property. This works beautifully:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       
+</span><span class='line'>       <span class="n">products</span> <span class="o">{</span>
+</span><span class='line'>           <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="o">}</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Since where query projections do not support nested properties, I'm closing the curtain.</p>
+<h1>Conclusion</h1>
+<p>I hope you've enjoyed the GORM for SQLaddicts series so far. In this article you learned how to select properties, and association properties using HQL's <em>select</em> clause and criteria and where query projections.
+<a href="/learn/">Stay tuned</a> for the final installment: the <em>group by</em> clause.</p>
+</div>
+
+  <footer>
+    <p class="meta text-muted">
+    </p>
+    
+      <div class="sharing text-center">
+<p>Useful huh? Share it with a friend!</p>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-twitter">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-google-plus">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-facebook">&nbsp;&nbsp;&nbsp;</span></a>
+
+    
+    <a style="font-size: 25px;" href="mailto:?to=&subject=How to use GORM to select (project) domain class properties.&body=Your personalized message goes here. http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/"><span class="fa fa-envelope"></span></a>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    $(".sharing .fa-twitter").click(function(e) {
+        e.preventDefault();
+        
+        var url = "https://twitter.com/share?url=http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/&text=How+to+use+GORM+to+select+%28project%29+domain+class+properties."
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-facebook").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://www.facebook.com/sharer/sharer.php?u=http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/";
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-google-plus").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://plus.google.com/share?url=http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/"
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+});
+</script>
+
+    
+    <div class="text-center">
+        <p>Then, <a href="/learn/">sign up</a> to get new articles sent to your mailbox.</p>
+    </div>
+  </footer>
+</article>
+
+
+                </div>
+            <div>
+            
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2015 - Emmanuel Rosa<br>
+  <small>
+      <span class="credit">Powered by <a href="http://sysgears.com/grain/">Grain</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a> and <a href="http://fontawesome.io">Font Awesome</a></span>.
+      <br><span class="credit">Build e044d8ed02f0.</span>
+  </small>
+</p>
+
+</div>
+</footer>
+    
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
+
+
+  </body>
+</html>

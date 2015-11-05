@@ -139,7 +139,7 @@
 <ol>
 <li><strong>WHERE - Add restrictions to a query</strong></li>
 <li><a href="/articles/gorm-for-sqladdicts-from-clause/">FROM - Work with associations and joins</a></li>
-<li>SELECT - Choose domains and/or properties <em>(coming soon)</em></li>
+<li><a href="/articles/gorm-for-sqladdicts-select-clause/">SELECT - Return multiple properties and/or domain classes</a></li>
 <li>GROUP BY - Use aggregate functions <em>(coming soon)</em></li>
 </ol>
 <h2>Getting started</h2>
@@ -175,7 +175,7 @@
 </p>
 <p>You'll begin with HQL due to it's similarity to SQL. From there, you'll learn about criteria queries, where queries, and finally dynamic finders. Let's get started.</p>
 <h1>HQL</h1>
-<p>HQL is a natural way to begin learning GORM queries simply because it makes the most of the SQL you already know. The significant differences in HQL are noticeable in the <a href="/articles/gorm-for-sqladdicts-from-clause/">GORM for SQLAddicts: FROM Clause</a> article, but there are still some worth mentioning now.</p>
+<p>HQL is a natural way to begin learning GORM queries simply because it makes the most of the SQL you already know. The significant differences in HQL are noticeable in the <a href="/articles/gorm-for-sqladdicts-select-clause/">GORM for SQLaddicts: SELECT clause</a> and <a href="/articles/gorm-for-sqladdicts-from-clause/">GORM for SQLAddicts: FROM Clause</a> articles, but there are still some worth mentioning now.</p>
 <h2>Anatomy</h2>
 <p>The table below compares a SQL query to it's HQL equivalent. Take a look and see how many differences you can identify.</p>
 <p><div class="panel panel-default">
@@ -237,7 +237,7 @@
         
     </footer>
 </blockquote></p>
-<p>The <em>select</em> clause, which is not covered in this article, can be used to return rows of domain class properties. The important thing to know for now is that while SQL queries return rows of columns as you're accustomed to, without a <em>select</em> clause HQL queries return domain class instances instead. Allow me to demonstrate.</p>
+<p>The <em>select</em> clause, which is covered in the <a href="/articles/gorm-for-sqladdicts-select-clause/"><em>select clause</em></a> article, can be used to return rows of domain class properties. The important thing to know for now is that while SQL queries return rows of columns as you're accustomed to, without a <em>select</em> clause HQL queries return domain class instances instead. Allow me to demonstrate.</p>
 <h4>SQL</h4>
 <p>Take the following SQL query.</p>
 <figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="n">SELECT *
@@ -717,7 +717,7 @@ WHERE name = '12 inch teddy bear' </span>
 </span><span class='line'><span class="kt">def</span> <span class="n">products</span> <span class="o">=</span> <span class="n">criteria</span><span class="o">.</span><span class="na">list</span><span class="o">()</span>
 </span></code></pre></td></tr></table></div></figure>
 <p>Like the HQL query, the criteria query doesn’t specify which domain properties to return. Instead it returns domain instances. The domain class on which the <code>withCriteria</code> method is executed determines which domain class instances to return.</p>
-<p><div class="alert alert-info" role="alert"><p>A projection can be used to return other domain class instances and/or properties.</p>
+<p><div class="alert alert-info" role="alert"><p>A projection can be used to return other domain class instances and/or properties. The <a href="/articles/gorm-for-sqladdicts-select-clause/"><em>select clause</em></a> article is all about projections.</p>
 </div>
 </p>
 <h3>Get first (or only) result</h3>
@@ -1833,7 +1833,7 @@ $(function() {
   <small>
       <span class="credit">Powered by <a href="http://sysgears.com/grain/">Grain</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a> and <a href="http://fontawesome.io">Font Awesome</a></span>.
-      <br><span class="credit">Build 66e2788960c7.</span>
+      <br><span class="credit">Build e044d8ed02f0.</span>
   </small>
 </p>
 

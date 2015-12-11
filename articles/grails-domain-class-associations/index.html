@@ -29,7 +29,7 @@
   <meta property="og:description" content="How does Grails' hasMany, belongsTo, and hasOne map to a relational database?">
   <meta property="og:locale" content="en_US" />
   <meta property="og:site_name" content="EmmanuelRosa.com" />
-  <meta property="og:updated_time" content="2015-12-10T18:48:51-05:00" />
+  <meta property="og:updated_time" content="2015-12-11T12:40:21-05:00" />
   <meta property="og:image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
 
   <script src="/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
@@ -79,15 +79,11 @@
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li class="active">
-                    <a rel="index" href="/"><span class="fa fa-rss-square hidden-sm hidden-md hidden-lg"></span> Blog</a>
-                </li>
                 <li >
-                    <a href="/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Archives</a>
+                    <a href="/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Articles</a>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a class="fa fa-weixin" href="/chat/"><span class="hidden-sm hidden-md hidden-lg"> Chat</span></a>
                 
             </ul>
             
@@ -97,12 +93,6 @@
 
 
       </header>
-      <div id="cookie-alert" class="alert alert-warning alert-dismissible fade in hidden">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <strong>Watch out, I use cookies!</strong> Now you know. Click <a href="https://www.google.com/policies/privacy/partners/">here</a> for enlightenment.
-      </div>
       <div id="main" role="main" class="container">
         <div id="content">
             <div class="row">
@@ -119,14 +109,6 @@
   <header class="page-header">
     
       <p class="meta text-muted text-uppercase">
-        
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-12-03T21:30:00-05:00" data-updated="true" itemprop="datePublished dateCreated">Thu Dec 03 2015</time>
-
-
-<span>|</span> <time datetime="2015-12-10T18:48:51-05:00" class="updated" itemprop="dateModified">Updated Thu Dec 10 2015</time>
-
-
         
       </p>
     
@@ -315,11 +297,30 @@
 </div>
 
   <footer>
-    <p class="meta text-muted">
-    </p>
+    <div class="text-center">
+        <p>Get more articles like this. <em>Weekly.</em></p>
+        <!-- Begin MailChimp Signup Form -->
+<div id="mc_embed_signup">
+<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+    
+    <div class="form-group">
+        <input type="email" value="" name="EMAIL" class="email form-control" id="mce-EMAIL" placeholder="email address" required>
+    </div>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
+    <input type="submit" value="Sign up" name="subscribe" id="mc-embedded-subscribe" class="btn btn-primary">
+    </div>
+</form>
+</div>
+
+<!--End mc_embed_signup-->
+
+    </div>
+    <br /><br />
     
       <div class="sharing text-center">
-<p>Useful huh? Share it with a friend!</p>
+<p>Useful? Tell a friend.</p>
 
     <a style="font-size: 25px;" href="#"><span class="fa fa fa-twitter">&nbsp;&nbsp;&nbsp;</span></a>
 
@@ -357,9 +358,6 @@ $(function() {
 </script>
 
     
-    <div class="text-center">
-        <p>Then, <a href="/learn/">sign up</a> to get new articles sent to your mailbox.</p>
-    </div>
   </footer>
 </article>
 
@@ -371,14 +369,7 @@ $(function() {
       </div>
     </div>
     <footer role="contentinfo"><div class="container">
-    <p class="text-muted credits">
-  Copyright &copy; 2015 - Emmanuel Rosa<br>
-  <small>
-      <span class="credit">Powered by <a href="http://sysgears.com/grain/">Grain</a></span>,
-      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a> and <a href="http://fontawesome.io">Font Awesome</a></span>.
-      <br><span class="credit">Build b5ed124f5fd5.</span>
-  </small>
-</p>
+    <!-- Nothing to see here -->
 
 </div>
 </footer>
@@ -423,5 +414,18 @@ $(function() {
 <script src="/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
 
 
+
+       <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text navbar-left visible-lg-block visible-md-block">
+                Copyright &copy; 2015 - Emmanuel Rosa
+            </p>
+            <p class="navbar-text navbar-right">
+                <a href="https://www.google.com/policies/privacy/partners/" target="_blank" class="navbar-link">
+                    I use cookies <span class="glyphicon glyphicon-new-window"</span></a>
+                    <span class="visible-lg-inline small">&nbsp;&nbsp;&nbsp;Build 53f4c6312831</span>
+            </p>
+        </div>
+       </nav>
   </body>
 </html>

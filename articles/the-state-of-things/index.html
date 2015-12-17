@@ -1,0 +1,825 @@
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en" prefix="og: http://ogp.me/ns#>
+<head>
+  <meta charset="utf-8">
+  <title>The State of Things - EmmanuelRosa.com</title>
+  <meta property="author" content="Emmanuel Rosa">
+
+  
+    <meta name="description" content="Remaking the software state machine for dynamic programming languages.">
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="canonical" href="http://emmanuelrosa.com/articles/the-state-of-things/">
+  <link href="/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://emmanuelrosa.com/articles/the-state-of-things/">
+  <meta property="og:title" content="The State of Things - EmmanuelRosa.com">
+  <meta property="og:description" content="Remaking the software state machine for dynamic programming languages.">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="EmmanuelRosa.com" />
+  <meta property="og:updated_time" content="2015-12-17T15:49:17-05:00" />
+  <meta property="og:image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+
+  <script src="/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
+<script src="/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
+<script src="/javascripts/cookie-alert-b3313f61b59563307884685d19e7849d.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="/assets/font-awesome/css/font-awesome.min.css">
+
+
+  
+  <link href="/stylesheets/screen-1d4d55e7d023f209097a7b94db951d7e.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+
+  
+   <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-69493301-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+
+
+</head>
+
+
+  
+  <body 
+     >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">EmmanuelRosa.com</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li >
+                    <a href="/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Articles</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                
+            </ul>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" role="main" class="container">
+        <div id="content">
+            <div class="row">
+                <div class="page-content col-md-12">
+                    
+<article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+  <!-- http://schema.org meta-data -->
+  <meta itemprop="name" content="The State of Things" />
+  <meta itemprop="description" content="Remaking the software state machine for dynamic programming languages." />
+  <meta itemprop="url" content="http://emmanuelrosa.com/articles/the-state-of-things/" />
+  <meta itemprop="image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+
+  
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+      </p>
+    
+    <h1 class="entry-title" itemprop="name headline">The State of Things
+        
+    </h1>
+  </header>
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>As a programmer you've either yet to, or have already, coded a state machine; for the remainder of this article, I'll assume the latter. First, a little bit of history.</p>
+<h2>The monkey-patch</h2>
+<p>In its most simplistic implementation, a state machine is coded as a series of <em>flags</em>: variables whose combination of values <em>mean</em> something.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">double</span> <span class="n">currency</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">inventory</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Take action based on current state.</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// No currency state</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span><span class="o">(</span><span class="n">currency</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Has currency state</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Sold out state</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>The proverbial wheel</h2>
+<p>A step above this crude monkey-patched state machine is initializing and maintaining the current state in a variable.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">enum</span> <span class="n">State</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">SOLD_OUT</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">NO_CURRENCY</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">HAS_CURRENCY</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">State</span> <span class="n">state</span>
+</span><span class='line'><span class="kt">double</span> <span class="n">currency</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">inventory</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Set initial state.</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="na">NO_CURRENCY</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span><span class="o">(</span><span class="n">currency</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="na">HAS_CURRENCY</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="na">SOLD_OUT</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Take action based on current state.</span>
+</span><span class='line'><span class="k">switch</span><span class="o">(</span><span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">SOLD_OUT:</span>
+</span><span class='line'>        <span class="c1">// Do something.</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Then came along the state machine design pattern, which for the purpose of this article I'll refer to as a compile-time state machine.</p>
+<h1>The compile-time state machine</h1>
+<p>You may be onto me. I've hinted at my yet-to-be-revealed hypothesis. But, as I was saying, the state machine design pattern suggests representing each state as a class, having a mechanism to maintain the current state and context, and finally, delegating work to the current state.</p>
+<p><svg width="398pt" height="116pt"
+ viewBox="0.00 0.00 398.05 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>%3</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-112 394.053,-112 394.053,4 -4,4"/>
+<!-- client -->
+<g id="node1" class="node"><title>client</title>
+<polygon fill="none" stroke="black" points="0,-35.5 0,-71.5 94.1279,-71.5 94.1279,-35.5 0,-35.5"/>
+<text text-anchor="middle" x="47.064" y="-49.3" font-family="Times,serif" font-size="14.00">Client (caller)</text>
+</g>
+<!-- context -->
+<g id="node2" class="node"><title>context</title>
+<polygon fill="none" stroke="black" points="130.128,-31.5 130.128,-75.5 192.77,-75.5 192.77,-31.5 130.128,-31.5"/>
+<text text-anchor="middle" x="161.449" y="-60.3" font-family="Times,serif" font-size="14.00">Context</text>
+<polyline fill="none" stroke="black" points="130.128,-53.5 192.77,-53.5 "/>
+<text text-anchor="middle" x="161.449" y="-38.3" font-family="Times,serif" font-size="14.00">handle()</text>
+</g>
+<!-- client&#45;&gt;context -->
+<g id="edge1" class="edge"><title>client&#45;&gt;context</title>
+<path fill="none" stroke="black" stroke-dasharray="1,5" d="M94.424,-53.5C102.842,-53.5 111.563,-53.5 119.801,-53.5"/>
+<polygon fill="black" stroke="black" points="119.918,-57.0001 129.918,-53.5 119.918,-50.0001 119.918,-57.0001"/>
+</g>
+<!-- state -->
+<g id="node3" class="node"><title>state</title>
+<polygon fill="none" stroke="black" points="228.77,-31.5 228.77,-75.5 291.411,-75.5 291.411,-31.5 228.77,-31.5"/>
+<text text-anchor="middle" x="260.09" y="-60.3" font-family="Times,serif" font-size="14.00">State</text>
+<polyline fill="none" stroke="black" points="228.77,-53.5 291.411,-53.5 "/>
+<text text-anchor="middle" x="260.09" y="-38.3" font-family="Times,serif" font-size="14.00">handle()</text>
+</g>
+<!-- context&#45;&gt;state -->
+<g id="edge2" class="edge"><title>context&#45;&gt;state</title>
+<path fill="none" stroke="black" d="M193.027,-53.5C201.125,-53.5 209.996,-53.5 218.535,-53.5"/>
+<polygon fill="black" stroke="black" points="218.711,-57.0001 228.711,-53.5 218.711,-50.0001 218.711,-57.0001"/>
+</g>
+<!-- stateA -->
+<g id="node4" class="node"><title>stateA</title>
+<polygon fill="none" stroke="black" points="327.411,-63.5 327.411,-107.5 390.053,-107.5 390.053,-63.5 327.411,-63.5"/>
+<text text-anchor="middle" x="358.732" y="-92.3" font-family="Times,serif" font-size="14.00">StateA</text>
+<polyline fill="none" stroke="black" points="327.411,-85.5 390.053,-85.5 "/>
+<text text-anchor="middle" x="358.732" y="-70.3" font-family="Times,serif" font-size="14.00">handle()</text>
+</g>
+<!-- state&#45;&gt;stateA -->
+<g id="edge3" class="edge"><title>state&#45;&gt;stateA</title>
+<path fill="none" stroke="black" d="M303.267,-67.4655C311.372,-70.1492 319.711,-72.9106 327.353,-75.4409"/>
+<polygon fill="none" stroke="black" points="303.06,-67.3971 296.107,-69.3083 291.668,-63.625 298.622,-61.7138 303.06,-67.3971"/>
+</g>
+<!-- stateB -->
+<g id="node5" class="node"><title>stateB</title>
+<polygon fill="none" stroke="black" points="327.411,-0.5 327.411,-44.5 390.053,-44.5 390.053,-0.5 327.411,-0.5"/>
+<text text-anchor="middle" x="358.732" y="-29.3" font-family="Times,serif" font-size="14.00">StateB</text>
+<polyline fill="none" stroke="black" points="327.411,-22.5 390.053,-22.5 "/>
+<text text-anchor="middle" x="358.732" y="-7.3" font-family="Times,serif" font-size="14.00">handle()</text>
+</g>
+<!-- state&#45;&gt;stateB -->
+<g id="edge4" class="edge"><title>state&#45;&gt;stateB</title>
+<path fill="none" stroke="black" d="M303.267,-39.9709C311.372,-37.3711 319.711,-34.696 327.353,-32.2448"/>
+<polygon fill="none" stroke="black" points="303.095,-40.026 298.603,-45.6676 291.668,-43.6914 296.16,-38.0499 303.095,-40.026"/>
+</g>
+</g>
+</svg>
+</p>
+<p><em>Pardon my class diagram. I'm getting started with Graphviz.</em></p>
+<p>Here is an implementation of a compile-time state machine.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">interface</span> <span class="nc">State</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">fill</span><span class="o">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">insertCurrency</span><span class="o">()</span>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">purchase</span><span class="o">()</span>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">eject</span><span class="o">()</span> 
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">StateImpl</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">fill</span><span class="o">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">throw</span> <span class="nf">createException</span><span class="o">(</span><span class="s1">&#39;fill&#39;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">insertCurrency</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">throw</span> <span class="nf">createException</span><span class="o">(</span><span class="s1">&#39;insertCurrency&#39;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">purchase</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">throw</span> <span class="nf">createException</span><span class="o">(</span><span class="s1">&#39;purchase&#39;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">eject</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">throw</span> <span class="nf">createException</span><span class="o">(</span><span class="s1">&#39;eject&#39;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Exception</span> <span class="nf">createException</span><span class="o">(</span><span class="n">String</span> <span class="n">actionName</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s2">&quot;&#39;$actionName&#39; is an invalid action for state &#39;${getClass().name}&#39;.&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@groovy.transform.TupleConstructor</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">SoldOut</span> <span class="kd">extends</span> <span class="n">StateImpl</span> <span class="kd">implements</span> <span class="n">State</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">StateMachine</span> <span class="n">sm</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">fill</span><span class="o">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">sm</span><span class="o">.</span><span class="na">inventory</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="na">inventory</span> <span class="o">+</span> <span class="n">count</span>
+</span><span class='line'>        <span class="n">sm</span><span class="o">.</span><span class="na">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span><span class="o">.</span><span class="na">NO_CURRENCY</span> <span class="o">:</span> <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span><span class="o">.</span><span class="na">SOLD_OUT</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">NoCurrency</span> <span class="kd">extends</span> <span class="n">StateImpl</span> <span class="kd">implements</span> <span class="n">State</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">insertCurrency</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span><span class="o">.</span><span class="na">HAS_CURRENCY</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@groovy.transform.TupleConstructor</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">HasCurrency</span> <span class="kd">extends</span> <span class="n">StateImpl</span> <span class="kd">implements</span> <span class="n">State</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">StateMachine</span> <span class="n">sm</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">purchase</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="o">--</span><span class="n">sm</span><span class="o">.</span><span class="na">inventory</span>
+</span><span class='line'>        <span class="n">sm</span><span class="o">.</span><span class="na">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span><span class="o">.</span><span class="na">NO_CURRENCY</span> <span class="o">:</span> <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span><span class="o">.</span><span class="na">SOLD_OUT</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">eject</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span><span class="o">.</span><span class="na">NO_CURRENCY</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">StateMachine</span> <span class="kd">implements</span> <span class="n">State</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">inventory</span> 
+</span><span class='line'>    <span class="n">State</span> <span class="n">state</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="kd">private</span> <span class="n">State</span> <span class="n">soldOut</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">State</span> <span class="n">noCurrency</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">State</span> <span class="n">hasCurrency</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">StateEnum</span><span class="o">,</span> <span class="n">State</span><span class="o">&gt;</span> <span class="n">stateMap</span>    
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">enum</span> <span class="n">StateEnum</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">SOLD_OUT</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">NO_CURRENCY</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">HAS_CURRENCY</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">(</span><span class="kt">int</span> <span class="n">inventory</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">inventory</span> <span class="o">=</span> <span class="n">inventory</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">soldOut</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SoldOut</span><span class="o">(</span><span class="k">this</span><span class="o">)</span>
+</span><span class='line'>        <span class="n">noCurrency</span> <span class="o">=</span> <span class="k">new</span> <span class="n">NoCurrency</span><span class="o">()</span>
+</span><span class='line'>        <span class="n">hasCurrency</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HasCurrency</span><span class="o">(</span><span class="k">this</span><span class="o">)</span>
+</span><span class='line'>        
+</span><span class='line'>        <span class="n">stateMap</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>            <span class="o">(</span><span class="n">StateEnum</span><span class="o">.</span><span class="na">SOLD_OUT</span><span class="o">):</span> <span class="n">soldOut</span><span class="o">,</span>
+</span><span class='line'>            <span class="o">(</span><span class="n">StateEnum</span><span class="o">.</span><span class="na">NO_CURRENCY</span><span class="o">):</span> <span class="n">noCurrency</span><span class="o">,</span>
+</span><span class='line'>            <span class="o">(</span><span class="n">StateEnum</span><span class="o">.</span><span class="na">HAS_CURRENCY</span><span class="o">):</span> <span class="n">hasCurrency</span>
+</span><span class='line'>        <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">state</span> <span class="o">=</span> <span class="n">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">noCurrency</span> <span class="o">:</span> <span class="n">soldOut</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">fill</span><span class="o">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">changeState</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">fill</span><span class="o">(</span><span class="n">count</span><span class="o">))</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">insertCurrency</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">changeState</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">insertCurrency</span><span class="o">())</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">purchase</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">changeState</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">purchase</span><span class="o">())</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="n">StateMachine</span><span class="o">.</span><span class="na">StateEnum</span> <span class="nf">eject</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">changeState</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">eject</span><span class="o">())</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="kd">private</span> <span class="n">StateEnum</span> <span class="nf">changeState</span><span class="o">(</span><span class="n">StateEnum</span> <span class="n">newState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>         <span class="n">state</span> <span class="o">=</span> <span class="n">stateMap</span><span class="o">[</span><span class="n">newState</span><span class="o">]</span>
+</span><span class='line'>         
+</span><span class='line'>         <span class="k">return</span> <span class="n">newState</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">def</span> <span class="n">sm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StateMachine</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">fill</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">insertCurrency</span><span class="o">()</span>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">purchase</span><span class="o">()</span>
+</span><span class='line'><span class="k">assert</span> <span class="n">sm</span><span class="o">.</span><span class="na">state</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">name</span> <span class="o">==</span> <span class="s1">&#39;NoCurrency&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">insertCurrency</span><span class="o">()</span>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">purchase</span><span class="o">()</span>
+</span><span class='line'><span class="k">assert</span> <span class="n">sm</span><span class="o">.</span><span class="na">state</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">name</span> <span class="o">==</span> <span class="s1">&#39;SoldOut&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The <code>State</code> interface defines the available actions/transitions. But since each state only needs to implement a subset of those actions, I added <code>StateImpl</code> to provide default implementations. In comparison to previous approaches, the state's business logic is spread out across multiple classes. Finally, construction of the state machine is handled by <code>StateMachine</code>'s constructor.</p>
+<p>We can learn a few things from compile-time state machines:</p>
+<ul>
+<li>Each state may only need to implement a subset of the available actions.</li>
+<li>A state machine is assembled from various components: states, context, and a supervisor (the state machine itself).</li>
+<li>State machines are quite similar in functionality, yet each needs a concrete implementation.</li>
+</ul>
+<p>And it is this last point that I want to emphasize. Even though state machines do the same thing, a complete compile-time state machine must be coded for each implementation. This is due to the static dispatching that's used when calling methods. Consider the following example:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">StateMachine</span> <span class="o">{</span> <span class="cm">/* I don&#39;t declare any methods. Ha ha! */</span> <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">def</span> <span class="n">sm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StateMachine</span><span class="o">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">doSomething</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><div class="alert alert-danger" role="alert">groovy.lang.MissingMethodException: No signature of method: StateMachine.doSomething() is applicable for argument types: () values: []
+Possible solutions: toString(), toString()</div>
+</p>
+<p>It results in an exception because the <code>StateMachine.doSomething()</code> method was not found. But languages with multiple/dynamic dispatching, such as Groovy, allow us to intercept these missing methods as they are called and do something useful. This is the basis for what I call a run-time state machine.</p>
+<h2>The run-time state machine</h2>
+<p>Simply put, a state machine consists of:</p>
+<ul>
+<li>a list of possible states</li>
+<li>the ability to delegate work to the current state</li>
+<li>the ability to change states</li>
+<li>and maybe some context to maintain data across state changes</li>
+</ul>
+<p>That's really it.</p>
+<p>With languages which use dynamic dispatching to execute methods, it's possible to create a <em>run-time state machine</em>. By this I mean a single set of classes which can be used to create various state machine implementations.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">StateMachine</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Map</span> <span class="n">context</span>
+</span><span class='line'>    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">State</span><span class="o">&gt;</span> <span class="n">states</span>
+</span><span class='line'>    <span class="n">State</span> <span class="n">state</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="kt">def</span> <span class="nf">methodMissing</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kt">def</span> <span class="n">action</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="na">actions</span><span class="o">[</span><span class="n">name</span><span class="o">]</span>
+</span><span class='line'>        
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">action</span> <span class="k">instanceof</span> <span class="n">GroovyCallable</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">action</span><span class="o">.</span><span class="na">delegate</span> <span class="o">=</span> <span class="n">context</span>
+</span><span class='line'>            <span class="n">state</span> <span class="o">=</span> <span class="n">states</span><span class="o">[</span><span class="n">action</span><span class="o">(*</span><span class="n">args</span><span class="o">)]</span> <span class="o">?:</span> <span class="n">state</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">action</span> <span class="k">instanceof</span> <span class="n">String</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">state</span> <span class="o">=</span> <span class="n">states</span><span class="o">[</span><span class="n">action</span><span class="o">]</span> <span class="o">?:</span> <span class="n">state</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s2">&quot;&#39;$name&#39; is an invalid action for state &#39;$state.name&#39;.&quot;</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>        
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">State</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">name</span>
+</span><span class='line'>    <span class="n">Map</span> <span class="n">actions</span> <span class="o">=</span> <span class="o">[:]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The example above consists of just two classes: <code>StateMachine</code> and <code>State</code>. <code>StateMachine</code> attempts to delegate method calls to the current <code>State</code>, and then changes the current state based on the method's output. <code>State.actions</code> is a list of supported actions/transitions. A <em>context</em> object is made the delegate of each action so that information can be maintained across state changes. Being generic, this state machine does not have state implementations; It doesn't have any business logic. Lets see what it's like to construct an implementation using this generic state machine.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">sm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StateMachine</span><span class="o">(</span>
+</span><span class='line'>    <span class="nl">context:</span> <span class="o">[</span><span class="nl">inventory:</span> <span class="mi">0</span><span class="o">],</span>
+</span><span class='line'>    <span class="nl">states:</span> <span class="o">[</span>
+</span><span class='line'>        <span class="nl">SoldOut:</span> <span class="o">[</span>
+</span><span class='line'>            <span class="nl">fill:</span> <span class="o">{</span> <span class="n">count</span> <span class="o">-&gt;</span>
+</span><span class='line'>                <span class="n">delegate</span><span class="o">.</span><span class="na">inventory</span> <span class="o">=</span> <span class="n">delegate</span><span class="o">.</span><span class="na">inventory</span> <span class="o">+</span> <span class="n">count</span>
+</span><span class='line'>                <span class="n">delegate</span><span class="o">.</span><span class="na">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="s1">&#39;NoCurrency&#39;</span> <span class="o">:</span> <span class="s1">&#39;SoldOut&#39;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">],</span>
+</span><span class='line'>        <span class="nl">NoCurrency:</span> <span class="o">[</span>
+</span><span class='line'>            <span class="nl">insertCurrency:</span> <span class="s1">&#39;HasCurrency&#39;</span>
+</span><span class='line'>        <span class="o">],</span>
+</span><span class='line'>        <span class="nl">HasCurrency:</span> <span class="o">[</span>
+</span><span class='line'>            <span class="nl">purchase:</span> <span class="o">{</span>
+</span><span class='line'>                <span class="o">--</span><span class="n">delegate</span><span class="o">.</span><span class="na">inventory</span>
+</span><span class='line'>                <span class="n">delegate</span><span class="o">.</span><span class="na">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="s1">&#39;NoCurrency&#39;</span> <span class="o">:</span> <span class="s1">&#39;SoldOut&#39;</span>
+</span><span class='line'>            <span class="o">},</span>
+</span><span class='line'>            <span class="nl">eject:</span> <span class="s1">&#39;NoCurrency&#39;</span>
+</span><span class='line'>        <span class="o">]</span>
+</span><span class='line'>    <span class="o">].</span><span class="na">collectEntries</span> <span class="o">{</span> <span class="n">name</span><span class="o">,</span> <span class="n">actions</span> <span class="o">-&gt;</span> <span class="o">[</span><span class="n">name</span><span class="o">,</span> <span class="k">new</span> <span class="n">State</span><span class="o">(</span><span class="nl">name:</span> <span class="n">name</span><span class="o">,</span> <span class="nl">actions:</span> <span class="n">actions</span><span class="o">)]</span> <span class="o">}</span>
+</span><span class='line'><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The example above uses the generic state machine to <em>build</em> a concrete implementation. The <code>State</code> instances are build from a <code>Map</code>. Each <code>Map</code> entry represents a state, with the value being a <code>Map</code> of <code>Closure</code>s (or <code>String</code>s). Each <code>Closure</code> implements a state action.</p>
+<p>As a bonus, if the action merely changes to another state, then a <code>String</code> with the state's name can be used instead of a <code>Closure</code>.</p>
+<p>Notice how unlike the compile-time state machine, here each state only needs to implement the actions that pertain to the state. No dummy method implementations are needed whatsoever.</p>
+<p><div class="alert alert-info" role="alert"><p>Actually, the <em>dummy</em> implementation is provided by the state machine.</p>
+</div>
+</p>
+<p>Here's what it's like to use the state machine.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">state</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="na">context</span><span class="o">.</span><span class="na">inventory</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">sm</span><span class="o">.</span><span class="na">states</span><span class="o">.</span><span class="na">NoCurrency</span> <span class="o">:</span> <span class="n">sm</span><span class="o">.</span><span class="na">states</span><span class="o">.</span><span class="na">SoldOut</span>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">fill</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">insertCurrency</span><span class="o">()</span>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">purchase</span><span class="o">()</span>
+</span><span class='line'><span class="k">assert</span> <span class="n">sm</span><span class="o">.</span><span class="na">state</span><span class="o">.</span><span class="na">name</span> <span class="o">==</span> <span class="s1">&#39;NoCurrency&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">insertCurrency</span><span class="o">()</span>
+</span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">purchase</span><span class="o">()</span>
+</span><span class='line'><span class="k">assert</span> <span class="n">sm</span><span class="o">.</span><span class="na">state</span><span class="o">.</span><span class="na">name</span> <span class="o">==</span> <span class="s1">&#39;SoldOut&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It works just like a compile-time state machine, and uses 44% less code. The most glaring difference being that the initial state must be set. Since we're dealing with a generic state machine, it has no idea which state to start with.</p>
+<h1>Making it better</h1>
+<p>I think the run-time state machine is rather neat. Particularly the fact that it can easily be reused to implement any number of state machines. However, there's one thing that bugs me about it: building one is rather yucky. Tune in next week  to see a better way to <em>build</em> run-time state machines.</p>
+</div>
+
+  <footer>
+    <div class="text-center">
+        <p>Get more articles like this. <em>Weekly.</em></p>
+        <!-- Begin MailChimp Signup Form -->
+<div id="mc_embed_signup">
+<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+    
+    <div class="form-group">
+        <input type="email" value="" name="EMAIL" class="email form-control" id="mce-EMAIL" placeholder="email address" required>
+    </div>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
+    <input type="submit" value="Sign up" name="subscribe" id="mc-embedded-subscribe" class="btn btn-primary">
+    </div>
+</form>
+</div>
+
+<!--End mc_embed_signup-->
+
+    </div>
+    <br /><br />
+    
+      <div class="sharing text-center">
+<p>Useful? Tell a friend.</p>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-twitter">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-google-plus">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-facebook">&nbsp;&nbsp;&nbsp;</span></a>
+
+    
+    <a style="font-size: 25px;" href="mailto:?to=&subject=Remaking the software state machine for dynamic programming languages.&body=Your personalized message goes here. http://emmanuelrosa.com/articles/the-state-of-things/"><span class="fa fa-envelope"></span></a>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    $(".sharing .fa-twitter").click(function(e) {
+        e.preventDefault();
+        
+        var url = "https://twitter.com/share?url=http://emmanuelrosa.com/articles/the-state-of-things/&text=Remaking+the+software+state+machine+for+dynamic+programming+languages."
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-facebook").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://www.facebook.com/sharer/sharer.php?u=http://emmanuelrosa.com/articles/the-state-of-things/";
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-google-plus").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://plus.google.com/share?url=http://emmanuelrosa.com/articles/the-state-of-things/"
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+});
+</script>
+
+    
+  </footer>
+</article>
+
+
+                </div>
+            <div>
+            
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <!-- Nothing to see here -->
+
+</div>
+</footer>
+    
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
+
+
+
+       <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text navbar-left visible-lg-block visible-md-block">
+                Copyright &copy; 2015 - Emmanuel Rosa
+            </p>
+            <p class="navbar-text navbar-right">
+                <a href="https://www.google.com/policies/privacy/partners/" target="_blank" class="navbar-link">
+                    I use cookies <span class="glyphicon glyphicon-new-window"</span></a>
+                    <span class="visible-lg-inline small">&nbsp;&nbsp;&nbsp;Build c615fd2f8ccf</span>
+            </p>
+        </div>
+       </nav>
+  </body>
+</html>

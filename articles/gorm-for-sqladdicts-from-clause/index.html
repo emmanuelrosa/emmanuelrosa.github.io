@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="canonical" href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/">
-  <link href="/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
+  <link href="http://emmanuelrosa.com/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
 
   <!-- http://opengraphprotocol.org/ -->
   <meta name="twitter:card" content="summary_large_image">
@@ -30,19 +30,19 @@
   <meta property="og:locale" content="en_US" />
   <meta property="og:site_name" content="EmmanuelRosa.com" />
   <meta property="og:updated_time" content="2015-12-11T12:40:21-05:00" />
-  <meta property="og:image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+  <meta property="og:image" content="http://emmanuelrosa.comhttp://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
 
-  <script src="/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
-<script src="/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
-<script src="/javascripts/cookie-alert-b3313f61b59563307884685d19e7849d.js"></script>
+  <script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
+<script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
+<script src="http://emmanuelrosa.com/javascripts/cookie-alert-b3313f61b59563307884685d19e7849d.js"></script>
 
-<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="/assets/font-awesome/css/font-awesome.min.css">
+<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="http://emmanuelrosa.com/assets/font-awesome/css/font-awesome.min.css">
 
 
   
-  <link href="/stylesheets/screen-1d4d55e7d023f209097a7b94db951d7e.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+  <link href="http://emmanuelrosa.com/stylesheets/screen-e4fc71c55515b4737f869e41df2c9bec.css" media="screen, projection, print" rel="stylesheet" type="text/css">
 
   
    <script>
@@ -74,13 +74,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">EmmanuelRosa.com</a>
+            <a class="navbar-brand" href="http://emmanuelrosa.com/">EmmanuelRosa.com</a>
         </div>
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li >
-                    <a href="/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Articles</a>
+                    <a href="http://emmanuelrosa.com/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Articles</a>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -103,7 +103,7 @@
   <meta itemprop="name" content="GORM for SQLAddicts: FROM Clause" />
   <meta itemprop="description" content="How to join domain classes in a GORM query." />
   <meta itemprop="url" content="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/" />
-  <meta itemprop="image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+  <meta itemprop="image" content="http://emmanuelrosa.comhttp://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
 
   
   <header class="page-header">
@@ -123,9 +123,9 @@
 <p>Welcome to the GORM for SQLaddicts series. A collection of articles dedicated to experienced SQL programmers who want to learn how to query GORM, the Grails object-relational mapper.</p>
 <p>Throughout this series you will learn how to</p>
 <ol>
-<li><a href="/articles/gorm-for-sqladdicts-where-clause/">WHERE - Add restrictions to a query</a></li>
+<li><a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/">WHERE - Add restrictions to a query</a></li>
 <li><strong>FROM - Work with associations and joins</strong></li>
-<li><a href="/articles/gorm-for-sqladdicts-select-clause/">SELECT - Return multiple properties and/or domain classes</a></li>
+<li><a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">SELECT - Return multiple properties and/or domain classes</a></li>
 </ol>
 <h2>Getting started</h2>
 <p>To follow along you'll need <a href="https://grails.org/">Grails</a> 3.0.5 and <a href="https://www.mercurial-scm.org/">Mercurial</a>. With Grails and Mercurial installed you can download the source code and run the Grails console.</p>
@@ -156,7 +156,7 @@
 <p>Now you're set up to execute GORM queries. All you need to do is write the query within the <code>Closure</code> and run the code (Script->Run or Command-R).</p>
 <h3>Domain classes</h3>
 <p>The examples in this article reference the <code>Vendor</code>, <code>Address</code>, <code>Customer</code>, <code>PurchaseOrder</code>, and <code>Product</code> domain classes. See the diagram below to see how the domain classes are related to each other.</p>
-<p><img src="/images/sqladdicts-domains-dd608e6240ea469473399853225b6c94.svg" alt="Domain class diagram" /></p>
+<p><img src="http://emmanuelrosa.com/images/sqladdicts-domains-dd608e6240ea469473399853225b6c94.svg" alt="Domain class diagram" /></p>
 </p>
 <p>The GORM for SQLAddicts series is not for the lazy. You gotta get your fingers cramped to get the best out of it. If your behind is not tingling, fast asleep, you've been getting too much exercise. Sit back down, get the Grails console back up, and lets get to it.</p>
 <h1>SQL vs GORM joins</h1>
@@ -256,7 +256,7 @@
 </span><span class='line'>    <span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">6</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">6</span><span class="o">]</span>
 </span><span class='line'><span class="o">]</span>
 </span></code></pre></td></tr></table></div></figure>
-<p><div class="alert alert-info" role="alert"><p>To learn how to run an HQL query, see the SQLaddicts <a href="/articles/gorm-for-sqladdicts-where-clause/"><em>where</em> clause</a> article.</p>
+<p><div class="alert alert-info" role="alert"><p>To learn how to run an HQL query, see the SQLaddicts <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><em>where</em> clause</a> article.</p>
 </div>
 </p>
 <p>Interestingly, the query returns a list of lists containing the <code>Vendor</code> and <code>Address</code>. You may have expected a list of <code>Vendor</code>s. The remedy is the topic of another article but I'll go ahead and introduce it since I'd be helpful right now: You need to add a <em>select</em> clause.</p>
@@ -286,7 +286,7 @@
 <p>To create the restriction on the state of Michigan, use the <code>addr</code> alias to access the <code>state</code> property.</p>
 <figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span> <span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">address</span> <span class="k">AS</span> <span class="n">addr</span> <span class="k">WHERE</span> <span class="n">addr</span><span class="p">.</span><span class="k">state</span> <span class="o">=</span> <span class="s1">&#39;MI&#39;</span>
 </span></code></pre></td></tr></table></div></figure>
-<p><div class="alert alert-info" role="alert"><p>Unfamiliar with GORM restrictions? See the article <a href="/articles/gorm-for-sqladdicts-where-clause/">GORM for SQLaddicts: WHERE Clause</a>.</p>
+<p><div class="alert alert-info" role="alert"><p>Unfamiliar with GORM restrictions? See the article <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/">GORM for SQLaddicts: WHERE Clause</a>.</p>
 </div>
 </p>
 <p>Where and criteria queries perform the join implicitly, but in HQL you need to explicitly join the domain classes to create aliases. Speaking of where and criteria queries...</p>
@@ -477,7 +477,7 @@
 </span><span class='line'><span class="k">FROM</span> <span class="n">Product</span> <span class="k">AS</span> <span class="n">prd</span> <span class="k">RIGHT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">prd</span><span class="p">.</span><span class="n">vendor</span> <span class="k">AS</span> <span class="n">vnd</span> 
 </span><span class='line'><span class="k">WHERE</span> <span class="n">prd</span><span class="p">.</span><span class="n">id</span> <span class="k">is</span> <span class="k">null</span><span class="err">&#39;</span>
 </span></code></pre></td></tr></table></div></figure>
-<p>It’s possible to do a right outer join with a criteria query, but you’d have to use a <a href="/articles/gorm-for-sqladdicts-select-clause/">projection</a> to return a <code>Vendor</code> property, such as its <code>id</code>.</p>
+<p>It’s possible to do a right outer join with a criteria query, but you’d have to use a <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">projection</a> to return a <code>Vendor</code> property, such as its <code>id</code>.</p>
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -532,8 +532,8 @@
 </span></code></pre></td></tr></table></div></figure>
 <h1>Conclusion</h1>
 <p>In this article you learned about joining domain classes in GORM queries, and you even learned a tiny little bit about the HQL <em>select</em> clause.
-Need a refresher on the <a href="/articles/gorm-for-sqladdicts-where-clause/"><em>where</em> clause</a>?
-Want to learn about <em>select</em>'ing with GORM queries? There's an <a href="/articles/gorm-for-sqladdicts-select-clause/">article</a> for that.</p>
+Need a refresher on the <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><em>where</em> clause</a>?
+Want to learn about <em>select</em>'ing with GORM queries? There's an <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">article</a> for that.</p>
 </div>
 
   <footer>
@@ -650,8 +650,8 @@ $(function() {
   </script>
 
 
-<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
+<script src="http://emmanuelrosa.com/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="http://emmanuelrosa.com/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
 
 
 
@@ -659,11 +659,11 @@ $(function() {
         <div class="container">
             <p class="navbar-text navbar-left visible-lg-block visible-md-block">
                 Copyright &copy; 2015 - Emmanuel Rosa
+                
             </p>
             <p class="navbar-text navbar-right">
                 <a href="https://www.google.com/policies/privacy/partners/" target="_blank" class="navbar-link">
                     I use cookies <span class="glyphicon glyphicon-new-window"</span></a>
-                    <span class="visible-lg-inline small">&nbsp;&nbsp;&nbsp;Build c615fd2f8ccf</span>
             </p>
         </div>
        </nav>

@@ -1,1 +1,0 @@
-$(function(b){var c="display-cookie-alert";var a=$.cookie(c);if(typeof a=="undefined"){a="true"}if(a=="true"){$("#cookie-alert").removeClass("hidden")}$("#cookie-alert").on("closed.bs.alert",function(){$.cookie(c,"false",{path:"/"})})});

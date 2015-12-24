@@ -643,9 +643,9 @@ Possible solutions: toString(), toString()</div>
 </span><span class='line'><span class="n">sm</span><span class="o">.</span><span class="na">purchase</span><span class="o">()</span>
 </span><span class='line'><span class="k">assert</span> <span class="n">sm</span><span class="o">.</span><span class="na">state</span><span class="o">.</span><span class="na">name</span> <span class="o">==</span> <span class="s1">&#39;SoldOut&#39;</span>
 </span></code></pre></td></tr></table></div></figure>
-<p>It works just like a compile-time state machine, and uses 44% less code. The most glaring difference being that the initial state must be set. Since we're dealing with a generic state machine, it has no idea which state to start with.</p>
+<p>It works just like a compile-time state machine, and uses 44% less code. The most glaring difference being that the initial state must be set. Since we're dealing with a generic state machine, it has no idea which state to start with, <em>yet</em>.</p>
 <h1>Making it better</h1>
-<p>I think the run-time state machine is rather neat. Particularly the fact that it can easily be reused to implement any number of state machines. However, there's one thing that bugs me about it: building one is rather yucky. Tune in next week  to see a better way to <em>build</em> run-time state machines.</p>
+<p>I think the run-time state machine is rather neat. Particularly the fact that it can easily be reused to implement any number of state machines. However, there's one thing that bugs me about it: building one is rather yucky. Check out <a href="http://emmanuelrosa.com/articles/builder-of-the-state/">part 2</a>  to see a better way to <em>build</em> run-time state machines.</p>
 </div>
 
   <footer>

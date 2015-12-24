@@ -1,4 +1,136 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2015-12-23T20:50:48-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[Builder of the State]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/builder-of-the-state/"/><updated>2015-12-23T20:50:48-05:00</updated><id>26b85926ced15f2714ddf6aeb8b614ca</id><content type="html"><![CDATA[<p>In my article <a href="http://emmanuelrosa.com/articles/the-state-of-things/">The State of Things</a> I introduced the idea of a run-time state machine: one which is assembled at run-time and dynamically delegates actions to each state. The premise is that state machines tend to be alike, therefore it makes sense to factor out the common code. A programmer's wet dream. This is a departure from how the state machine design pattern is commonly implemented; in which each state machine is crafted out of its own set of domain-specific classes.</p>
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en" prefix="og: http://ogp.me/ns#>
+<head>
+  <meta charset="utf-8">
+  <title>Builder of the State - EmmanuelRosa.com</title>
+  <meta property="author" content="Emmanuel Rosa">
+
+  
+    <meta name="description" content="Building state machines like it's nobody's business">
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="canonical" href="http://emmanuelrosa.com/articles/builder-of-the-state/">
+  <link href="http://emmanuelrosa.com/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
+  <link href="http://emmanuelrosa.com/atom.xml" rel="alternate" title="EmmanuelRosa.com" type="application/atom+xml">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://emmanuelrosa.com/articles/builder-of-the-state/">
+  <meta property="og:title" content="Builder of the State - EmmanuelRosa.com">
+  <meta property="og:description" content="Building state machines like it's nobody's business">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="EmmanuelRosa.com" />
+  <meta property="og:updated_time" content="2015-12-23T20:50:48-05:00" />
+  <meta property="og:image" content="http://emmanuelrosa.comhttp://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+
+  <script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
+<script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
+
+<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="http://emmanuelrosa.com/assets/font-awesome/css/font-awesome.min.css">
+
+
+  
+  <link href="http://emmanuelrosa.com/stylesheets/screen-e4fc71c55515b4737f869e41df2c9bec.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+
+  
+   <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-69493301-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+
+
+  <!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+<script type="text/javascript">
+    window.cookieconsent_options = {"message":"Of course this website uses cookies. It would be so bland without them.","dismiss":"I'm so baked","learnMore":"What the frack?","link":"https://www.google.com/policies/privacy/partners/","theme":"dark-bottom"};
+</script>
+
+<script type="text/javascript" src="http://emmanuelrosa.com/javascripts/cookieconsent.min-b4176fc70afe0c55107683f38e47d71b.js"></script>
+<!-- End Cookie Consent plugin -->
+
+</head>
+
+
+  
+  <body 
+     >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://emmanuelrosa.com/">EmmanuelRosa.com</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li >
+                    <a href="http://emmanuelrosa.com/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Articles</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                
+            </ul>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" role="main" class="container">
+        <div id="content">
+            <div class="row">
+                <div class="page-content col-md-12">
+                    
+<article class="hentry" role="article" itemscope itemtype="http://schema.org/BlogPosting">
+  <!-- http://schema.org meta-data -->
+  <meta itemscope itemprop="mainEntityOfPage" itemType="https://schema.org/WebPage" itemid="http://emmanuelrosa.com/articles/builder-of-the-state/"/>
+  <meta itemprop="name" content="Builder of the State" />
+  <meta itemprop="author" content="Emmanuel Rosa" />
+  <meta itemprop="publisher" content="Emmanuel Rosa" />
+  <meta itemprop="datePublished" content="Thu Dec 17 17:28:00 EST 2015" />
+  <meta itemprop="dateModified" content="Wed Dec 23 20:50:48 EST 2015" />
+  <meta itemprop="description" content="Building state machines like it's nobody's business" />
+  <meta itemprop="url" content="http://emmanuelrosa.com/articles/builder-of-the-state/" />
+  <meta itemprop="image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+
+  
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+      </p>
+    
+    <h1 class="entry-title" itemprop="name headline">Builder of the State
+        
+    </h1>
+  </header>
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>In my article <a href="http://emmanuelrosa.com/articles/the-state-of-things/">The State of Things</a> I introduced the idea of a run-time state machine: one which is assembled at run-time and dynamically delegates actions to each state. The premise is that state machines tend to be alike, therefore it makes sense to factor out the common code. A programmer's wet dream. This is a departure from how the state machine design pattern is commonly implemented; in which each state machine is crafted out of its own set of domain-specific classes.</p>
 <p>Since the action method calls are not known at compile-time, run-time state machines apply only to dynamic/multi-dispatch programming languages, such as Groovy. Here's where the aforementioned article left off:</p>
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -595,4 +727,136 @@
 </span></code></pre></td></tr></table></div></figure>
 <p>Now that's freakin' awesome. Putting a state machine together is a matter of declaring each state and its actions. Then, you can just... use it. The state transitions are handled automatically, the context is easily accessible, and the best part: there's no need to code yet another set of state machine classes.</p>
 <p>And of course, as good as this is already, I'm certain improvements will come.</p>
-]]></content></entry></feed>
+</div>
+
+  <footer>
+    <div class="text-center">
+        <p>Get more articles like this. <em>Weekly.</em></p>
+        <!-- Begin MailChimp Signup Form -->
+<div id="mc_embed_signup">
+<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+    
+    <div class="form-group">
+        <input type="email" value="" name="EMAIL" class="email form-control" id="mce-EMAIL" placeholder="email address" required>
+    </div>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
+    <input type="submit" value="Sign up" name="subscribe" id="mc-embedded-subscribe" class="btn btn-primary">
+    </div>
+</form>
+</div>
+
+<!--End mc_embed_signup-->
+
+    </div>
+    <br /><br />
+    
+      <div class="sharing text-center">
+<p>Useful? Tell a friend.</p>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-twitter">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-google-plus">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-facebook">&nbsp;&nbsp;&nbsp;</span></a>
+
+    
+    <a style="font-size: 25px;" href="mailto:?to=&subject=Building state machines like it's nobody's business&body=Your personalized message goes here. http://emmanuelrosa.com/articles/builder-of-the-state/"><span class="fa fa-envelope"></span></a>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    $(".sharing .fa-twitter").click(function(e) {
+        e.preventDefault();
+        
+        var url = "https://twitter.com/share?url=http://emmanuelrosa.com/articles/builder-of-the-state/&text=Building+state+machines+like+it%27s+nobody%27s+business"
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-facebook").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://www.facebook.com/sharer/sharer.php?u=http://emmanuelrosa.com/articles/builder-of-the-state/";
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-google-plus").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://plus.google.com/share?url=http://emmanuelrosa.com/articles/builder-of-the-state/"
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+});
+</script>
+
+    
+  </footer>
+</article>
+
+
+                </div>
+            <div>
+            
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <!-- Nothing to see here -->
+
+</div>
+</footer>
+    
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+<script src="http://emmanuelrosa.com/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="http://emmanuelrosa.com/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
+
+
+
+       <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text navbar-left">
+                Copyright &copy; 2015 - Emmanuel Rosa
+            </p>
+            <p class="navbar-text navbar-right">
+                
+            </p>
+        </div>
+       </nav>
+  </body>
+</html>

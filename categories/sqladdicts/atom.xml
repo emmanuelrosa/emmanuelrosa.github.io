@@ -1,136 +1,726 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/categories/sqladdicts/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2015-12-23T19:21:16-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[GORM for SQLaddicts: SELECT clause]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/"/><updated>2015-12-18T17:01:48-05:00</updated><id>3e21f9c92e61ee0feac7ce7da1942ba3</id><content type="html"><![CDATA[<p>This article in the GORM for SQLaddicts series describes how to choose which domain class properties to return in your GORM query. It's the equivalent of the SQL <em>select</em> clause.</p>
+<!--more-->
+<p><h1>GORM for SQLaddicts</h1>
+<p>Welcome to the GORM for SQLaddicts series. A collection of articles dedicated to experienced SQL programmers who want to learn how to query GORM, the Grails object-relational mapper.</p>
+<p>Throughout this series you will learn how to</p>
+<ol>
+<li><a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/">WHERE - Add restrictions to a query</a></li>
+<li><a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/">FROM - Work with associations and joins</a></li>
+<li><strong>SELECT - Return multiple properties and/or domain classes</strong></li>
+</ol>
+<h2>Getting started</h2>
+<p>To follow along you'll need <a href="https://grails.org/">Grails</a> 3.0.5 and <a href="https://www.mercurial-scm.org/">Mercurial</a>. With Grails and Mercurial installed you can download the source code and run the Grails console.</p>
+<h3>Setup</h3>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>hg clone ssh://hg@bitbucket.org/erosa/gormtut
+</span><span class='line'><span class="nv">$ </span><span class="nb">cd </span>gormtut 
+</span><span class='line'><span class="nv">$ </span>grails console
+</span></code></pre></td></tr></table></div></figure>
+<p>Once the Grails console window appears, copy &amp; paste the following code into the Grails console.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">com.emmanuelrosa.gormtut.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withNewSession</span> <span class="o">{</span> <span class="n">session</span> <span class="o">-&gt;</span>
+</span><span class='line'>    <span class="c1">// Run GORM queries within this Closure.</span>
+</span><span class='line'>    
+</span><span class='line'>    
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Now you're set up to execute GORM queries. All you need to do is write the query within the <code>Closure</code> and run the code (Script->Run or Command-R).</p>
+<h3>Domain classes</h3>
+<p>The examples in this article reference the <code>Vendor</code>, <code>Address</code>, and <code>Product</code> domain classes. See the diagram below to see how the domain classes are related to each other.</p>
+<p><img src="http://emmanuelrosa.com/images/sqladdicts-domains-dd608e6240ea469473399853225b6c94.svg" alt="Domain class diagram" /></p>
+</p>
+<p>Throughout this series I've dedicated each article to a single SQL clause: (see the
+<a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><em>where</em></a> and <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/"><em>from</em></a> articles).
+And as you may have noticed, it's impossible to use only one of these SQL clauses in isolation. The same applies to GORM. Both previous articles utilize the <em>select</em> clause in some way. Lets learn about the details.</p>
+<h1>SELECTing properties</h1>
+<p>In the <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><em>where</em></a> clause article I said not to be concerned with the <em>select</em> clause just yet. Now the time has come to figure this thing out. Say you want to get a list of all the <code>Vendor</code> names. In SQL you can accomplish this with the following query:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Thus far, your queries return domain class instances. As an example, you <em>could</em> list all of the <code>Vendor</code> names by getting all of the <code>Vendor</code> instances and then using Groovy to grab the <code>name</code> properties:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">findAll</span><span class="o">()*.</span><span class="na">name</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>But lets face it, you can do better. Enough with the suspense. Here's the HQL:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The HQL is straight-forward: it returns the <code>name</code> property of all the <code>Vendor</code> domain class instances. The output looks like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;Bears Emporium&#39;</span><span class="o">,</span> <span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Furball Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;Jouets et ours&#39;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Lets add another property:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">address</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output looks like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">1</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears Emporium&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">2</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">3</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Furball Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">4</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">5</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Jouets et ours&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">6</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output is rows of <code>List</code>s, with each <code>List</code> containing two elements: the <code>Vendor</code> <code>name</code> and <code>Address</code>. Interesting huh? How about returning an <code>Address</code> property, such as <code>country</code>, instead?</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">.</span><span class="n">country</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The output of which is:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears Emporium&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Furball Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;USA&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;England&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Jouets et ours&#39;</span><span class="o">,</span> <span class="s1">&#39;France&#39;</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Cool! Look how easy that was! Lets try one more thing: add the <code>Vendor.products</code> property.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">.</span><span class="n">country</span><span class="p">,</span> <span class="n">products</span> <span class="k">FROM</span> <span class="n">Vendor</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><div class="alert alert-danger" role="alert">org.springframework.jdbc.BadSqlGrammarException: Hibernate operation: could not prepare statement; bad SQL grammar</div>
+</p>
+<p>That didn't go so well. The issue is that <code>Vendor</code> has a one-to-many relationship to <code>Product</code> through the <code>products</code> association. This means the <code>products</code> property is a collection and thus requires a different approach. I'll come back to this. Lets do some criteria and where queries.</p>
+<h2>Criteria</h2>
+<p>The equivalent of a <em>select</em> clause in criteria (and where) queries is called a projection. Yea! Yes, I'm talking about those mysterious projections you've seen plastered all over Stack Overflow.</p>
+<p>Once you see a projection in action, it will click.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">println</span> <span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;address&#39;</span><span class="o">)</span>           
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Notice how each <em>selected</em> property corresponds to a call to <code>HibernateCriteriaBuilder.property(String propertyName)</code>. Mystery solved <span class="fa fa-smile-o"< /span></p>
+<p>What's with the <code>println</code>? The problem is this: The <code>Address</code> instances are lazy-loaded when the query executes: you get a proxy rather than actual <code>Address</code> instances. The proxy then retrieves the data when you try to access it, as will happen when the Grails console attempts to print the result. The <code>println</code> forces the proxy to <em>resolve</em> within the <code>withNewSession(Closure)</code> Closure preventing this:</p>
+<p><div class="alert alert-danger" role="alert">org.hibernate.LazyInitializationException: could not initialize proxy - no Session</div>
+</p>
+<p>For clarity, I'll exclude the <code>println</code> from the remaining examples. Lets replicate the HQL which returns the <code>Vendor.name</code> and <code>Vendor.address.country</code> properties.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       
+</span><span class='line'>       <span class="n">address</span> <span class="o">{</span>
+</span><span class='line'>           <span class="n">property</span><span class="o">(</span><span class="s1">&#39;country&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="o">}</span>          
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Ah, this is different. To access a nested property:</p>
+<ol>
+<li>call a method named like the first property (ex. <code>address(Closure)</code>).</li>
+<li>Within the <code>Closure</code> call <code>property(String)</code> with a property name (ex. <code>country</code>) relative to the property represented by the method call (ex. <code>address</code>).</li>
+</ol>
+<p>It takes some getting used to, but it's not so bad. So, what can a where query do for you?</p>
+<h2>Where query</h2>
+<p>Projections work differently in where queries. Up first are the <code>name</code> and <code>address</code> properties.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">where</span> <span class="o">{}</span>
+</span><span class='line'>   <span class="o">.</span><span class="na">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;address&#39;</span><span class="o">)</span>
+</span><span class='line'>   <span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>I modified the where query syntax I normally use to clarify the fact that in where queries the projections are specified <em>outside</em> of the <code>GormEntity.where(Closure)</code> <code>Closure</code>. Otherwise, the projections <code>Closure</code> is the same as the one used in the equivalent criteria query. But, there's a caveat. Lets see what happens when you try to project <code>address.country</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">where</span> <span class="o">{}</span>
+</span><span class='line'>   <span class="o">.</span><span class="na">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       
+</span><span class='line'>       <span class="n">address</span> <span class="o">{</span>
+</span><span class='line'>           <span class="n">property</span><span class="o">(</span><span class="s1">&#39;country&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="o">}</span>          
+</span><span class='line'>   <span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It doesn't work. What a downer. In short, projections are just better supported by criteria queries.</p>
+<p>Earlier on you tried selecting/projecting the <code>Vendor.products</code> property and got a nasty error. Lets discover what you can do to handle such <code>Collection</code> properties.</p>
+<h1>SELECTing collections</h1>
+<p>Since you know SQL, the easiest way to learn how to deal with <code>Collections</code> is to look at what the output looks like:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">1</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">2</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">3</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">4</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">5</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">6</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">7</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">8</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">9</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Keeping in mind that a <code>Vendor</code> has a one-to-many relationship with <code>Product</code>, you can see in the table-like output above what looks like an... <em>inner join</em>! Do you see it? OK, let me show you the query that produced that output.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">product</span> <span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">products</span> <span class="k">AS</span> <span class="n">product</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>By joining the <code>Product</code> domain class through the existing <code>Vendor.products</code> association each related <code>Product</code> becomes available in the query. Note that to select the <code>Vendor.name</code> the domain class alias (ex <code>vnd</code>) must be used. Joining is covered thoroughly in the <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/"><em>from clause</em></a> article.</p>
+<p>Lets build on this and select a <code>Product</code> property.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">product</span><span class="p">.</span><span class="n">name</span> <span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">products</span> <span class="k">AS</span> <span class="n">product</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Complimentary output:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;8 inch teddy bear&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Bears R Us&#39;</span><span class="o">,</span> <span class="s1">&#39;18 inch teddy bear&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Fish bean bag toy&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Bird bean bag toy&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Rabbit bean bag toy&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Doll House Inc.&#39;</span><span class="o">,</span> <span class="s1">&#39;Raggedy Ann&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;King doll&#39;</span><span class="o">],</span>
+</span><span class='line'>    <span class="o">[</span><span class="s1">&#39;Fun and Games&#39;</span><span class="o">,</span> <span class="s1">&#39;Queen doll&#39;</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Yep, it's that easy. Moving on...</p>
+<h2>Criteria query</h2>
+<p>I'll tell you right off the bat that you cannot project the associated domain classes like you can with HQL. For instance, neither one of these queries will work:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="c1">// This won&#39;t work.</span>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;products&#39;</span><span class="o">)</span>           
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Neither will this.</span>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">createAlias</span><span class="o">(</span><span class="s1">&#39;products&#39;</span><span class="o">,</span> <span class="s1">&#39;product&#39;</span><span class="o">)</span>
+</span><span class='line'>   
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;product&#39;</span><span class="o">)</span>           
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>But, you can project an association's property. This works beautifully:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       
+</span><span class='line'>       <span class="n">products</span> <span class="o">{</span>
+</span><span class='line'>           <span class="n">property</span><span class="o">(</span><span class="s1">&#39;name&#39;</span><span class="o">)</span>
+</span><span class='line'>       <span class="o">}</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Since where query projections do not support nested properties, I'm closing the curtain.</p>
+<h1>Conclusion</h1>
+<p>I hope you've enjoyed the GORM for SQLaddicts series so far. In this article you learned how to select properties, and association properties using HQL's <em>select</em> clause and criteria and where query projections. I hope you've enjoyed this series of articles.</p>
+]]></content></entry><entry><title type="html"><![CDATA[GORM for SQLAddicts: FROM Clause]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/"/><updated>2015-12-11T12:40:21-05:00</updated><id>dacc9dc3c1a40ddca21c242c74cbb0ab</id><content type="html"><![CDATA[<p>When you learned how to specify GORM query restrictions, the equivalent of the SQL WHERE clause, we only queried a single domain class. In this article you'll learn how to join multiple domain classes into your queries.</p>
+<!--more-->
+<p><h1>GORM for SQLaddicts</h1>
+<p>Welcome to the GORM for SQLaddicts series. A collection of articles dedicated to experienced SQL programmers who want to learn how to query GORM, the Grails object-relational mapper.</p>
+<p>Throughout this series you will learn how to</p>
+<ol>
+<li><a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/">WHERE - Add restrictions to a query</a></li>
+<li><strong>FROM - Work with associations and joins</strong></li>
+<li><a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">SELECT - Return multiple properties and/or domain classes</a></li>
+</ol>
+<h2>Getting started</h2>
+<p>To follow along you'll need <a href="https://grails.org/">Grails</a> 3.0.5 and <a href="https://www.mercurial-scm.org/">Mercurial</a>. With Grails and Mercurial installed you can download the source code and run the Grails console.</p>
+<h3>Setup</h3>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>hg clone ssh://hg@bitbucket.org/erosa/gormtut
+</span><span class='line'><span class="nv">$ </span><span class="nb">cd </span>gormtut 
+</span><span class='line'><span class="nv">$ </span>grails console
+</span></code></pre></td></tr></table></div></figure>
+<p>Once the Grails console window appears, copy &amp; paste the following code into the Grails console.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">com.emmanuelrosa.gormtut.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withNewSession</span> <span class="o">{</span> <span class="n">session</span> <span class="o">-&gt;</span>
+</span><span class='line'>    <span class="c1">// Run GORM queries within this Closure.</span>
+</span><span class='line'>    
+</span><span class='line'>    
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Now you're set up to execute GORM queries. All you need to do is write the query within the <code>Closure</code> and run the code (Script->Run or Command-R).</p>
+<h3>Domain classes</h3>
+<p>The examples in this article reference the <code>Vendor</code>, <code>Address</code>, <code>Customer</code>, <code>PurchaseOrder</code>, and <code>Product</code> domain classes. See the diagram below to see how the domain classes are related to each other.</p>
+<p><img src="http://emmanuelrosa.com/images/sqladdicts-domains-dd608e6240ea469473399853225b6c94.svg" alt="Domain class diagram" /></p>
+</p>
+<p>The GORM for SQLAddicts series is not for the lazy. You gotta get your fingers cramped to get the best out of it. If your behind is not tingling, fast asleep, you've been getting too much exercise. Sit back down, get the Grails console back up, and lets get to it.</p>
+<h1>SQL vs GORM joins</h1>
+<p>In SQL, when you need to reference more that one table, you specify the other table(s) and  how they are to be joined.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span> 
+</span><span class='line'><span class="k">FROM</span>   <span class="n">TABLE_A</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">TABLE_B</span>
+</span><span class='line'>       <span class="k">ON</span> <span class="n">TABLE_A</span><span class="p">.</span><span class="n">FOREIGN_KEY</span> <span class="o">=</span> <span class="n">TABLE_B</span><span class="p">.</span><span class="n">ID</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>GORM is different.</p>
+<p>GORM automatically <em>inner</em> joins domain classes according to their associations. A GORM query can alter the join <em>type</em> (left, right, or Cartesian) but cannot join un-associated domain classes. Lets explore this with an <em>inner join</em> using HQL.</p>
+<h2>An example</h2>
+<p>Let's say you want to get all the <code>Vendor</code>s in the state of Michigan. The first step is to check which associations you have available in the domain classes involved. Here's the source code.</p>
+<figure class='code'><figcaption><span>Vendor.groovy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Vendor</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">name</span>
+</span><span class='line'>    <span class="n">Address</span> <span class="n">address</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span><span class="nl">products:</span> <span class="n">Product</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>Address.groovy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Address</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">street</span> 
+</span><span class='line'>    <span class="n">String</span> <span class="n">city</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">state</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">zip</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">country</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">state</span> <span class="nl">nullable:</span> <span class="kc">true</span> 
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The <code>Vendor.address</code> association provides a many-to-one association from <code>Vendor</code> to <code>Address</code>. This means you can join <code>Address</code> and <code>Vendor</code> and then get to the <code>state</code> property via the <code>Address</code>. But before you can create the join you need to create an alias.</p>
+<h3>Create an alias</h3>
+<p>The <em>inner join</em> syntax is:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">domainClassAlias</span><span class="p">.</span><span class="n">associationProperty</span> <span class="k">AS</span> <span class="k">alias</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>So the first thing you need is a domain class alias: an alias for the domain class containing the association property. The <code>Vendor</code> domain class contains the <code>address</code> association property, so you need an alias for <code>Vendor</code>. Just like SQL, in HQL an alias is created with <em>AS</em>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>
 
-
-
-<!DOCTYPE html>
-<html class="no-js" lang="en" prefix="og: http://ogp.me/ns#>
-<head>
-  <meta charset="utf-8">
-  <title>GORM for SQLaddicts: WHERE Clause - EmmanuelRosa.com</title>
-  <meta property="author" content="Emmanuel Rosa">
-
-  
-    <meta name="description" content="How to emulate a WHERE clause in Grails' GORM.">
-  
-  
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="canonical" href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/">
-  <link href="http://emmanuelrosa.com/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
-  <link href="http://emmanuelrosa.com/atom.xml" rel="alternate" title="EmmanuelRosa.com" type="application/atom+xml">
-
-  <!-- http://opengraphprotocol.org/ -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:type" content="article">
-  <meta property="og:url" content="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/">
-  <meta property="og:title" content="GORM for SQLaddicts: WHERE Clause - EmmanuelRosa.com">
-  <meta property="og:description" content="How to emulate a WHERE clause in Grails' GORM.">
-  <meta property="og:locale" content="en_US" />
-  <meta property="og:site_name" content="EmmanuelRosa.com" />
-  <meta property="og:updated_time" content="2015-12-10T18:48:51-05:00" />
-  <meta property="og:image" content="http://emmanuelrosa.comhttp://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
-
-  <script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
-<script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
-
-<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="http://emmanuelrosa.com/assets/font-awesome/css/font-awesome.min.css">
-
-
-  
-  <link href="http://emmanuelrosa.com/stylesheets/screen-e4fc71c55515b4737f869e41df2c9bec.css" media="screen, projection, print" rel="stylesheet" type="text/css">
-
-  
-   <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-69493301-1', 'auto');
-    ga('send', 'pageview');
-
-  </script>
-
-
-  <!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
-<script type="text/javascript">
-    window.cookieconsent_options = {"message":"Of course this website uses cookies. It would be so bland without them.","dismiss":"I'm so baked","learnMore":"What the frack?","link":"https://www.google.com/policies/privacy/partners/","theme":"dark-bottom"};
-</script>
-
-<script type="text/javascript" src="http://emmanuelrosa.com/javascripts/cookieconsent.min-b4176fc70afe0c55107683f38e47d71b.js"></script>
-<!-- End Cookie Consent plugin -->
-
-</head>
-
-
-  
-  <body 
-     >
-    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
-    <div id="wrap">
-      <header role="banner">
-        <nav class="navbar navbar-default" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="http://emmanuelrosa.com/">EmmanuelRosa.com</a>
-        </div>
-
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li >
-                    <a href="http://emmanuelrosa.com/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Articles</a>
-                </li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                
-            </ul>
-            
-        </div>
-    </div>
-</nav>
-
-
-      </header>
-      <div id="main" role="main" class="container">
-        <div id="content">
-            <div class="row">
-                <div class="page-content col-md-12">
-                    
-<article class="hentry" role="article" itemscope itemtype="http://schema.org/BlogPosting">
-  <!-- http://schema.org meta-data -->
-  <meta itemscope itemprop="mainEntityOfPage" itemType="https://schema.org/WebPage" itemid="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"/>
-  <meta itemprop="name" content="GORM for SQLaddicts: WHERE Clause" />
-  <meta itemprop="author" content="Emmanuel Rosa" />
-  <meta itemprop="publisher" content="Emmanuel Rosa" />
-  <meta itemprop="datePublished" content="Wed Oct 07 15:59:00 EDT 2015" />
-  <meta itemprop="dateModified" content="Thu Dec 10 18:48:51 EST 2015" />
-  <meta itemprop="description" content="How to emulate a WHERE clause in Grails' GORM." />
-  <meta itemprop="url" content="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/" />
-  <meta itemprop="image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
-
-  
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
+<blockquote>
+    <p>That was easy.</p>
+    <footer>
         
-      </p>
-    
-    <h1 class="entry-title" itemprop="name headline">GORM for SQLaddicts: WHERE Clause
+            <strong>Staples, Inc</strong>
         
-    </h1>
-  </header>
-
-<div class="entry-content clearfix" itemprop="articleBody description"><p>Learn how to implement the equivalent of a SQL WHERE clause using an HQL query, criteria query, where query, and dynamic finder. <!--more-->You'll save time by learning GORM using the SQL concepts you already know.</p>
+        
+    </footer>
+</blockquote></p>
+<p>Now that you have the <code>vnd</code> alias for <code>Vendor</code> you're ready to create the join.</p>
+<h3>Create the join</h3>
+<p>Using the <code>vnd</code> alias let's create an <em>inner join</em>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">address</span> <span class="k">AS</span> <span class="n">addr</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Go ahead and run the query in the Grails console. The output looks like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">1</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">1</span><span class="o">],</span> 
+</span><span class='line'>    <span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">2</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">2</span><span class="o">],</span> 
+</span><span class='line'>    <span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">3</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">3</span><span class="o">],</span> 
+</span><span class='line'>    <span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">4</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">4</span><span class="o">],</span> 
+</span><span class='line'>    <span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">5</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">5</span><span class="o">],</span> 
+</span><span class='line'>    <span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">6</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Address</span> <span class="o">:</span> <span class="mi">6</span><span class="o">]</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><div class="alert alert-info" role="alert"><p>To learn how to run an HQL query, see the SQLaddicts <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><em>where</em> clause</a> article.</p>
+</div>
+</p>
+<p>Interestingly, the query returns a list of lists containing the <code>Vendor</code> and <code>Address</code>. You may have expected a list of <code>Vendor</code>s. The remedy is the topic of another article but I'll go ahead and introduce it since I'd be helpful right now: You need to add a <em>select</em> clause.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span> <span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">address</span> <span class="k">AS</span> <span class="n">addr</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Just <em>select</em> the <code>vnd</code> alias and you'll get a list of <code>Vendor</code>s.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">1</span><span class="o">,</span> 
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">2</span><span class="o">,</span> 
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">3</span><span class="o">,</span> 
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">4</span><span class="o">,</span> 
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">5</span><span class="o">,</span> 
+</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Vendor</span> <span class="o">:</span> <span class="mi">6</span>
+</span><span class='line'><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Because it makes sense to do so, although it's beyond the scope of this article I'll go ahead and continue using the <em>select</em> clause in the simplest way possible for the remainder of this article.</p>
+<p>Unlike SQL, there's no need to specify which fields to join on. In fact, HQL doesn't support the <em>ON</em> clause. Instead, you simply specify which association to use for the join. GORM does the rest. The domain class joined by the association is then given an alias. In this example, <code>addr</code>. Now that you have the join created you can finally add the restriction with a <em>where</em> clause.</p>
+<h3>Create the restriction</h3>
+<p>To create the restriction on the state of Michigan, use the <code>addr</code> alias to access the <code>state</code> property.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span> <span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">AS</span> <span class="n">vnd</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">vnd</span><span class="p">.</span><span class="n">address</span> <span class="k">AS</span> <span class="n">addr</span> <span class="k">WHERE</span> <span class="n">addr</span><span class="p">.</span><span class="k">state</span> <span class="o">=</span> <span class="s1">&#39;MI&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><div class="alert alert-info" role="alert"><p>Unfamiliar with GORM restrictions? See the article <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/">GORM for SQLaddicts: WHERE Clause</a>.</p>
+</div>
+</p>
+<p>Where and criteria queries perform the join implicitly, but in HQL you need to explicitly join the domain classes to create aliases. Speaking of where and criteria queries...</p>
+<h1>Inner join</h1>
+<p>Now that you know how to create an <em>inner join</em> in HQL, let's do the same with where and criteria queries. Dynamic finders don’t support joins so they're not discussed in this article. Where queries are up first.</p>
+<h2>Where query</h2>
+<p>To create a restriction on a property of an association, simply use Groovy's property access.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">address</span><span class="o">.</span><span class="na">state</span> <span class="o">==</span> <span class="s1">&#39;MI&#39;</span>
+</span><span class='line'><span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>In the query above, the <code>state</code> property of the <code>address</code> association is used in a restriction. And of course, the <code>address</code> association is in the <code>Vendor</code> domain class. Notice that unlike HQL, there's no need to create an alias. You simply use the association's property name. Let's see the equivalent criteria query.</p>
+<h2>Criteria query</h2>
+<p>To create a restriction on a property of an association, you need to...</p>
+<ol>
+<li>Call a method with the same name as the association.</li>
+<li>Provide a <code>Closure</code> as method's argument.</li>
+<li>Within the <code>Closure</code> use any of the association's properties.</li>
+</ol>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">address</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">eq</span><span class="o">(</span><span class="s1">&#39;state&#39;</span><span class="o">,</span> <span class="s1">&#39;MI&#39;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>In the query shown above, the <code>address(Closure)</code> method informs the <code>HibernateCriteriaBuilder</code> that properties accessed within the <code>Closure</code> should be looked up in the <code>Vendor</code>'s <code>Address</code>. The <code>HibernateCriteriaBuilder.eq(String, Object)</code> method called within the <code>Closure</code> will use the <code>state</code> property of the <code>Address</code> when creating the restriction.</p>
+<p>The where and criteria queries you just learned about don't show any indication of joins, unlike the HQL query. That's about to change. Left outer join is next.</p>
+<h1>Left outer join</h1>
+<p>To demonstrate a left outer join lets query for <code>Customer</code>s lacking a <code>PurchaseOrder</code>. Here are the domain classes involved.</p>
+<figure class='code'><figcaption><span>Customer.groovy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Customer</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">name</span>
+</span><span class='line'>    <span class="n">Address</span> <span class="n">address</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">contact</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">email</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span><span class="nl">orders:</span> <span class="n">PurchaseOrder</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>PurchaseOrder.groovy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">PurchaseOrder</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Date</span> <span class="n">orderDate</span>
+</span><span class='line'>    <span class="n">Customer</span> <span class="n">customer</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span><span class="nl">items:</span> <span class="n">Item</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>To find the <code>Customer</code>s without a <code>PurchaseOrder</code> you'll use the <code>Customer.orders</code> association. Lets do this in HQL first.</p>
+<h2>HQL query</h2>
+<p>The HQL query will likely bore you.</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">cust</span> <span class="k">FROM</span> <span class="n">Customer</span> <span class="k">AS</span> <span class="n">cust</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">cust</span><span class="p">.</span><span class="n">orders</span> <span class="k">AS</span> <span class="n">ord</span> <span class="k">WHERE</span> <span class="n">ord</span> <span class="o">=</span> <span class="k">null</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>When you run the query you'll see there's only one qualifying <code>Customer</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Customer</span> <span class="o">:</span> <span class="mi">2</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>By default, where and criteria queries use an inner join. However, the join type of a criteria query can be changed to a left outer join. Unfortunately, the join type of a where query cannot be changed, so this is as far as we can get with where queries.</p>
+<h2>Criteria query</h2>
+<p>First, import the Hibernate join type you intend to use. I'm going to import all of them with the following statement:</p>
+<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">hibernate</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">JoinType</span><span class="o">.*</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Next, create an alias for the <code>orders</code> association while specifying the join type.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">hibernate</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">JoinType</span><span class="o">.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Customer</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">createAlias</span><span class="o">(</span><span class="s1">&#39;orders&#39;</span><span class="o">,</span> <span class="s1">&#39;ord&#39;</span><span class="o">,</span> <span class="n">LEFT_OUTER_JOIN</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>An alias is created with <code>HibernateCriteriaBuilder.createAlias(String associationPath, String alias, int joinType)</code>. And finally, use the <code>ord</code> alias with `HibernateCriteriaBuilder.isNull(String) to create the <em>is null</em> restriction.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">hibernate</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">JoinType</span><span class="o">.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Customer</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">createAlias</span><span class="o">(</span><span class="s1">&#39;orders&#39;</span><span class="o">,</span> <span class="s1">&#39;ord&#39;</span><span class="o">,</span> <span class="n">LEFT_OUTER_JOIN</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">isNull</span><span class="o">(</span><span class="s1">&#39;ord.id&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>Bonus: Lets cheat</h2>
+<p>The <em>null check</em> type of query used in the example is quite common in SQL. GORM offers another way to achieve the same thing. By looking for <code>Customer</code>s with an <code>orders</code> collection of size 0, you can get the same result without the left outer join.</p>
+<figure class='code'><figcaption><span>HQL</span></figcaption><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">FROM</span> <span class="n">Customer</span> <span class="k">WHERE</span> <span class="k">size</span><span class="p">(</span><span class="n">orders</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>Where</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Customer</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">orders</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'><span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>Criteria</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Customer</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">sizeEq</span><span class="o">(</span><span class="s1">&#39;orders&#39;</span><span class="o">,</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Up next is the uncommon but sometimes useful Cartesian product/cross join.</p>
+<h2>Cartesian/cross join</h2>
+<p>For a cross join (Cartesian product) you’re down to HQL. It's unsupported by where and criteria queries. Similar to SQL, you simply need to list the domain classes separated by a comma:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">FROM</span> <span class="n">Vendor</span> <span class="n">AS</span> <span class="n">vnd</span><span class="o">,</span> <span class="n">Product</span> <span class="n">AS</span> <span class="n">prd</span><span class="err">&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It's that simple.</p>
+<h1>Association direction</h1>
+<p>Because GORM joins domain classes based on their associations, the associations impact how you can write your queries. Something to consider is the direction of your associations. Lets say there’s a unidirectional many-to-one association from <code>Product</code> to <code>Vendor</code>.</p>
+<figure class='code'><figcaption><span>Product.groovy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Product</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">name</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">description</span>
+</span><span class='line'>    <span class="n">BigDecimal</span> <span class="n">price</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span><span class="nl">vendor:</span> <span class="n">Vendor</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>Vendor.groovy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Vendor</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">name</span>
+</span><span class='line'>    <span class="n">Address</span> <span class="n">address</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>To get a list of <code>Vendor</code>s who don’t have <code>Product</code>s, you’d have to use a right outer join like this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">vnd</span> 
+</span><span class='line'><span class="k">FROM</span> <span class="n">Product</span> <span class="k">AS</span> <span class="n">prd</span> <span class="k">RIGHT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">prd</span><span class="p">.</span><span class="n">vendor</span> <span class="k">AS</span> <span class="n">vnd</span> 
+</span><span class='line'><span class="k">WHERE</span> <span class="n">prd</span><span class="p">.</span><span class="n">id</span> <span class="k">is</span> <span class="k">null</span><span class="err">&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It’s possible to do a right outer join with a criteria query, but you’d have to use a <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">projection</a> to return a <code>Vendor</code> property, such as its <code>id</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">hibernate</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">JoinType</span><span class="o">.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">createAlias</span> <span class="s1">&#39;vendor&#39;</span><span class="o">,</span> <span class="s1">&#39;vnd&#39;</span><span class="o">,</span> <span class="n">RIGHT_OUTER_JOIN</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">property</span> <span class="s1">&#39;vnd.id&#39;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    
+</span><span class='line'>    <span class="n">isNull</span> <span class="s1">&#39;id&#39;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Alternatively, a bidirectional association simplifies the queries. For instance, with a <em>one-to-many</em> association from <code>Vendor</code> to <code>Product</code>...</p>
+<figure class='code'><figcaption><span>Vendor.groovy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Vendor</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span><span class="nl">products:</span> <span class="n">Product</span><span class="o">]</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>You get the option of using a where query.</p>
+<figure class='code'><figcaption><span>HQL</span></figcaption><div class="highlight"><table><tr><td class='code'><pre><code class='sql'><span class='line'><span class="k">FROM</span> <span class="n">Vendor</span> <span class="k">WHERE</span> <span class="k">size</span><span class="p">(</span><span class="n">products</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="err">&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>Where</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">where</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">products</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'><span class="o">}.</span><span class="na">list</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>Criteria</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Vendor</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">sizeEq</span><span class="o">(</span><span class="s1">&#39;products&#39;</span><span class="o">,</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h1>Conclusion</h1>
+<p>In this article you learned about joining domain classes in GORM queries, and you even learned a tiny little bit about the HQL <em>select</em> clause.
+Need a refresher on the <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><em>where</em> clause</a>?
+Want to learn about <em>select</em>'ing with GORM queries? There's an <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-select-clause/">article</a> for that.</p>
+]]></content></entry><entry><title type="html"><![CDATA[GORM for SQLaddicts: WHERE Clause]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"/><updated>2015-12-10T18:48:51-05:00</updated><id>3c50af512f1f96b65c4c96102a2696c1</id><content type="html"><![CDATA[<p>Learn how to implement the equivalent of a SQL WHERE clause using an HQL query, criteria query, where query, and dynamic finder. <!--more-->You'll save time by learning GORM using the SQL concepts you already know.</p>
 <p><h1>GORM for SQLaddicts</h1>
 <p>Welcome to the GORM for SQLaddicts series. A collection of articles dedicated to experienced SQL programmers who want to learn how to query GORM, the Grails object-relational mapper.</p>
 <p>Throughout this series you will learn how to</p>
@@ -1766,136 +2356,4 @@ WHERE name = '12 inch teddy bear' </span>
 </span></code></pre></td></tr></table></div></figure>
 <h1>Conclusion</h1>
 <p>That concludes this article in the GORM for SQLaddicts series. Now that you know how to construct the equivalent of a SQL <em>where</em> clause using a criteria query, where query, and dynamic finder, you're ready to tackle the equivalent of the <em>from</em> clause. <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/">Ready?</a></p>
-</div>
-
-  <footer>
-    <div class="text-center">
-        <p>Get more articles like this. <em>Weekly.</em></p>
-        <!-- Begin MailChimp Signup Form -->
-<div id="mc_embed_signup">
-<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
-    <div id="mc_embed_signup_scroll">
-    
-    <div class="form-group">
-        <input type="email" value="" name="EMAIL" class="email form-control" id="mce-EMAIL" placeholder="email address" required>
-    </div>
-    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-    <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
-    <input type="submit" value="Sign up" name="subscribe" id="mc-embedded-subscribe" class="btn btn-primary">
-    </div>
-</form>
-</div>
-
-<!--End mc_embed_signup-->
-
-    </div>
-    <br /><br />
-    
-      <div class="sharing text-center">
-<p>Useful? Tell a friend.</p>
-
-    <a style="font-size: 25px;" href="#"><span class="fa fa fa-twitter">&nbsp;&nbsp;&nbsp;</span></a>
-
-    <a style="font-size: 25px;" href="#"><span class="fa fa fa-google-plus">&nbsp;&nbsp;&nbsp;</span></a>
-
-    <a style="font-size: 25px;" href="#"><span class="fa fa fa-facebook">&nbsp;&nbsp;&nbsp;</span></a>
-
-    
-    <a style="font-size: 25px;" href="mailto:?to=&subject=How to emulate a WHERE clause in Grails' GORM.&body=Your personalized message goes here. http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"><span class="fa fa-envelope"></span></a>
-</div>
-
-<script type="text/javascript">
-$(function() {
-    $(".sharing .fa-twitter").click(function(e) {
-        e.preventDefault();
-        
-        var url = "https://twitter.com/share?url=http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/&text=How+to+emulate+a+WHERE+clause+in+Grails%27+GORM."
-        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
-    });
-
-    $(".sharing .fa-facebook").click(function(e) {
-        e.preventDefault();
-
-        var url = "https://www.facebook.com/sharer/sharer.php?u=http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/";
-        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
-    });
-
-    $(".sharing .fa-google-plus").click(function(e) {
-        e.preventDefault();
-
-        var url = "https://plus.google.com/share?url=http://emmanuelrosa.com/articles/gorm-for-sqladdicts-where-clause/"
-        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
-    });
-});
-</script>
-
-    
-  </footer>
-</article>
-
-
-                </div>
-            <div>
-            
-        </div>
-      </div>
-    </div>
-    <footer role="contentinfo"><div class="container">
-    <!-- Nothing to see here -->
-
-</div>
-</footer>
-    
-
-
-
-
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id; js.async = true;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-
-
-
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-<script src="http://emmanuelrosa.com/assets/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="http://emmanuelrosa.com/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
-
-
-
-       <nav class="navbar navbar-default navbar-fixed-bottom">
-        <div class="container">
-            <p class="navbar-text navbar-left">
-                Copyright &copy; 2015 - Emmanuel Rosa
-            </p>
-            <p class="navbar-text navbar-right">
-                
-            </p>
-        </div>
-       </nav>
-  </body>
-</html>
+]]></content></entry></feed>

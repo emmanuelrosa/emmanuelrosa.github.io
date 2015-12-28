@@ -1768,23 +1768,33 @@ WHERE name = '12 inch teddy bear' </span>
 <p>That concludes this article in the GORM for SQLaddicts series. Now that you know how to construct the equivalent of a SQL <em>where</em> clause using a criteria query, where query, and dynamic finder, you're ready to tackle the equivalent of the <em>from</em> clause. <a href="http://emmanuelrosa.com/articles/gorm-for-sqladdicts-from-clause/">Ready?</a></p>
 </div>
 
+  <div id="article-read-detector"></div>
   <footer>
     <div class="text-center">
         <p>Get more articles like this. <em>Weekly.</em></p>
         <!-- Begin MailChimp Signup Form -->
 <div id="mc_embed_signup">
-<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
-    <div id="mc_embed_signup_scroll">
+<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" class="validate form-inline mc-embedded-subscribe-form" target="_blank" novalidate id="mc-article-footer">
+    <div>
     
     <div class="form-group">
-        <input type="email" value="" name="EMAIL" class="email form-control" id="mce-EMAIL" placeholder="email address" required>
+        <input type="email" value="" name="EMAIL" class="email form-control" placeholder="email address" required>
     </div>
     <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
     <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
-    <input type="submit" value="Sign up" name="subscribe" id="mc-embedded-subscribe" class="btn btn-primary">
+    <input type="submit" value="Sign up" name="subscribe" class="btn btn-primary" id="mc-article-footer-submit">
     </div>
 </form>
 </div>
+
+
+<script type="text/javascript">
+    $(function() {
+        $('#mc-article-footer-submit').click(function() {
+            ga('send', 'event', 'newsletter', 'start-signup', 'mc-article-footer');
+        });
+    });
+</script>
 
 <!--End mc_embed_signup-->
 
@@ -1832,6 +1842,192 @@ $(function() {
     
   </footer>
 </article>
+
+
+<div id="ouibounce-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">But wait! There's more...</h4>
+      </div>
+      <div class="modal-body">
+        <img class="pull-left visible-md-block visible-lg-block" src="http://emmanuelrosa.com/images/me-aed1cb28a1261a6257b60aa56fab0eae.png" style="margin-right: 30px"/>
+        <div>
+            <h4>I have a weekly newsletter wherein I publish similar articles.</h4>
+            <h3>Care to sign up?</h3>
+            <!-- Begin MailChimp Signup Form -->
+<div id="mc_embed_signup">
+<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" class="validate form-inline mc-embedded-subscribe-form" target="_blank" novalidate id="mc-article-on-exit-modal">
+    <div>
+    
+    <div class="form-group">
+        <input type="email" value="" name="EMAIL" class="email form-control" placeholder="email address" required>
+    </div>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
+    <input type="submit" value="Sign up" name="subscribe" class="btn btn-primary" id="mc-article-on-exit-modal-submit">
+    </div>
+</form>
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+        $('#mc-article-on-exit-modal-submit').click(function() {
+            ga('send', 'event', 'newsletter', 'start-signup', 'mc-article-on-exit-modal');
+        });
+    });
+</script>
+
+<!--End mc_embed_signup-->
+
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+/*
+ * jQuery appear plugin
+ *
+ * Copyright (c) 2012 Andrey Sidorov
+ * licensed under MIT license.
+ *
+ * https://github.com/morr/jquery.appear/
+ *
+ * Version: 0.3.6
+ */
+(function($) {
+  var selectors = [];
+
+  var check_binded = false;
+  var check_lock = false;
+  var defaults = {
+    interval: 250,
+    force_process: false
+  };
+  var $window = $(window);
+
+  var $prior_appeared = [];
+
+  function process() {
+    check_lock = false;
+    for (var index = 0, selectorsLength = selectors.length; index < selectorsLength; index++) {
+      var $appeared = $(selectors[index]).filter(function() {
+        return $(this).is(':appeared');
+      });
+
+      $appeared.trigger('appear', [$appeared]);
+
+      if ($prior_appeared[index]) {
+        var $disappeared = $prior_appeared[index].not($appeared);
+        $disappeared.trigger('disappear', [$disappeared]);
+      }
+      $prior_appeared[index] = $appeared;
+    }
+  };
+
+  function add_selector(selector) {
+    selectors.push(selector);
+    $prior_appeared.push();
+  }
+
+  // "appeared" custom filter
+  $.expr[':']['appeared'] = function(element) {
+    var $element = $(element);
+    if (!$element.is(':visible')) {
+      return false;
+    }
+
+    var window_left = $window.scrollLeft();
+    var window_top = $window.scrollTop();
+    var offset = $element.offset();
+    var left = offset.left;
+    var top = offset.top;
+
+    if (top + $element.height() >= window_top &&
+        top - ($element.data('appear-top-offset') || 0) <= window_top + $window.height() &&
+        left + $element.width() >= window_left &&
+        left - ($element.data('appear-left-offset') || 0) <= window_left + $window.width()) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  $.fn.extend({
+    // watching for element's appearance in browser viewport
+    appear: function(options) {
+      var opts = $.extend({}, defaults, options || {});
+      var selector = this.selector || this;
+      if (!check_binded) {
+        var on_check = function() {
+          if (check_lock) {
+            return;
+          }
+          check_lock = true;
+
+          setTimeout(process, opts.interval);
+        };
+
+        $(window).scroll(on_check).resize(on_check);
+        check_binded = true;
+      }
+
+      if (opts.force_process) {
+        setTimeout(process, opts.interval);
+      }
+      add_selector(selector);
+      return $(selector);
+    }
+  });
+
+  $.extend({
+    // force elements's appearance check
+    force_appear: function() {
+      if (check_binded) {
+        process();
+        return true;
+      }
+      return false;
+    }
+  });
+})(function() {
+  if (typeof module !== 'undefined') {
+    // Node
+    return require('jquery');
+  } else {
+    return jQuery;
+  }
+}());
+
+!function(e,n){"function"==typeof define&&define.amd?define(n):"object"==typeof exports?module.exports=n(require,exports,module):e.ouibounce=n()}(this,function(e,n,o){return function(e,n){"use strict";function o(e,n){return"undefined"==typeof e?n:e}function i(e){var n=24*e*60*60*1e3,o=new Date;return o.setTime(o.getTime()+n),"; expires="+o.toUTCString()}function t(){s()||(L.addEventListener("mouseleave",u),L.addEventListener("mouseenter",r),L.addEventListener("keydown",c))}function u(e){e.clientY>k||(D=setTimeout(m,y))}function r(){D&&(clearTimeout(D),D=null)}function c(e){g||e.metaKey&&76===e.keyCode&&(g=!0,D=setTimeout(m,y))}function d(e,n){return a()[e]===n}function a(){for(var e=document.cookie.split("; "),n={},o=e.length-1;o>=0;o--){var i=e[o].split("=");n[i[0]]=i[1]}return n}function s(){return d(T,"true")&&!v}function m(){s()||(e&&(e.style.display="block"),E(),f())}function f(e){var n=e||{};"undefined"!=typeof n.cookieExpire&&(b=i(n.cookieExpire)),n.sitewide===!0&&(w=";path=/"),"undefined"!=typeof n.cookieDomain&&(x=";domain="+n.cookieDomain),"undefined"!=typeof n.cookieName&&(T=n.cookieName),document.cookie=T+"=true"+b+x+w,L.removeEventListener("mouseleave",u),L.removeEventListener("mouseenter",r),L.removeEventListener("keydown",c)}var l=n||{},v=l.aggressive||!1,k=o(l.sensitivity,20),p=o(l.timer,1e3),y=o(l.delay,0),E=l.callback||function(){},b=i(l.cookieExpire)||"",x=l.cookieDomain?";domain="+l.cookieDomain:"",T=l.cookieName?l.cookieName:"viewedOuibounceModal",w=l.sitewide===!0?";path=/":"",D=null,L=document.documentElement;setTimeout(t,p);var g=!1;return{fire:m,disable:f,isDisabled:s}}});
+
+
+(function() {
+    var articleReadDetector = $('#article-read-detector');
+
+    articleReadDetector.appear();
+    articleReadDetector.on('appear', function(event, elements) {
+        ouibounce(false,
+            {
+                delay: 500,
+                sitewide: true,
+                callback: function() { 
+                    $('#ouibounce-modal').modal('show');
+                }
+            });
+
+        articleReadDetector.off('appear'); 
+        
+        ga('send', 'event', 'article', 'read', 'GORM for SQLaddicts: WHERE Clause');
+        
+    });
+})();
+</script>
 
 
                 </div>

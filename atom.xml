@@ -1,4 +1,179 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2015-12-23T20:50:48-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[Builder of the State]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/builder-of-the-state/"/><updated>2015-12-23T20:50:48-05:00</updated><id>26b85926ced15f2714ddf6aeb8b614ca</id><content type="html"><![CDATA[<p>In my article <a href="http://emmanuelrosa.com/articles/the-state-of-things/">The State of Things</a> I introduced the idea of a run-time state machine: one which is assembled at run-time and dynamically delegates actions to each state. The premise is that state machines tend to be alike, therefore it makes sense to factor out the common code. A programmer's wet dream. This is a departure from how the state machine design pattern is commonly implemented; in which each state machine is crafted out of its own set of domain-specific classes.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2015-12-23T20:50:48-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[Not Having to Remember]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/not-having-to-remember/"/><updated>2015-12-22T10:31:21-05:00</updated><id>3ca5e4a3da15ea3e99a50a8d4c90ee9f</id><content type="html"><![CDATA[<p>My website <a href="http://emmanuelrosa.com">EmmanuelRosa.com</a> is written using the Grain framework. While writing articles for my site I discovered that the process of writing one article often leads to the need to write other related articles. Ideally, these articles would be linked together, making it easy to navigate from one to the other. This is especially important in articles which are part of a series. This got me thinking about ways I can code something now and have it take effect in the future. And so it was decided: I wanted a way to create a link into the future.</p>
+<h2>The future article</h2>
+<p>The idea was simple. Upon determining that I would likely create a related article in the future, I'd add a special kind of link pointing to it. When generating the website, Grain would check if the linked-to article exists. If so, it would render some content. Otherwise it would render alternative content.</p>
+<p>This special type of link is implemented with a taglib I named <code>id</code>.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">grain</span><span class="o">.</span><span class="na">taglibs</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.sysgears.grain.taglib.GrainTagLib</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovy.util.logging.Slf4j</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * A Grain taglib for tags that should be included in Grain. </span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="nd">@Slf4j</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">CustomGrainTagLib</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">GrainTagLib</span> <span class="n">taglib</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">CustomGrainTagLib</span><span class="o">(</span><span class="n">GrainTagLib</span> <span class="n">taglib</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">taglib</span> <span class="o">=</span> <span class="n">taglib</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Returns the url of the (first) resource with the specified id.</span>
+</span><span class='line'><span class="cm">     *</span>
+</span><span class='line'><span class="cm">     * If a Closure is provided and the url is found, the Closure</span>
+</span><span class='line'><span class="cm">     * is called with the url as its parameter and the the return value</span>
+</span><span class='line'><span class="cm">     * of the Closure is returned. If a Closure is not provided </span>
+</span><span class='line'><span class="cm">     * and the url is found, the url is returned.</span>
+</span><span class='line'><span class="cm">     *</span>
+</span><span class='line'><span class="cm">     * If the url is not found null is returned.</span>
+</span><span class='line'><span class="cm">     * </span>
+</span><span class='line'><span class="cm">     * @param id REQUIRED of the resource to return.</span>
+</span><span class='line'><span class="cm">     * @param closure OPTIONAL called if the url is found</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kt">def</span> <span class="n">id</span> <span class="o">=</span> <span class="o">{</span> <span class="n">String</span> <span class="n">id</span><span class="o">,</span> <span class="n">Closure</span> <span class="n">closure</span> <span class="o">=</span> <span class="kc">null</span> <span class="o">-&gt;</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(!</span><span class="n">id</span><span class="o">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s1">&#39;Missing required resource ID&#39;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">def</span> <span class="n">url</span> <span class="o">=</span> <span class="n">taglib</span><span class="o">.</span><span class="na">site</span><span class="o">.</span><span class="na">resources</span><span class="o">.</span><span class="na">find</span> <span class="o">{</span> <span class="n">it</span><span class="o">.</span><span class="na">id</span> <span class="o">==</span> <span class="n">id</span> <span class="o">}?.</span><span class="na">url</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span><span class="o">(!</span><span class="n">url</span><span class="o">)</span> <span class="n">log</span><span class="o">.</span><span class="na">warn</span> <span class="s2">&quot;No resource found for id: $id&quot;</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">url</span><span class="o">)</span> <span class="n">url</span> <span class="o">=</span> <span class="n">taglib</span><span class="o">.</span><span class="na">link</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">url</span> <span class="o">&amp;&amp;</span> <span class="n">closure</span><span class="o">)</span> <span class="n">closure</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+</span><span class='line'>        <span class="k">else</span> <span class="n">url</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>The <code>id</code> taglib expects an identifier and an optional <code>Closure</code>. When invoked, it searches for a page with the specified <em>id</em> in the page's YAML header. If a matching page is not found, the taglib returns <code>null</code>. Otherwise it will either return the URL to the page, or call the provided <code>Closure</code> with the URL.</p>
+<p>An example where I've used this taglib is in my recent article <a href="http://emmanuelrosa.com/articles/the-state-of-things/">The State of Things</a>. In it I have this closing paragraph:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">I</span> <span class="n">think</span> <span class="n">the</span> <span class="n">run</span><span class="o">-</span><span class="n">time</span> <span class="n">state</span> <span class="n">machine</span> <span class="n">is</span> <span class="n">rather</span> <span class="n">neat</span><span class="o">.</span> <span class="n">Particularly</span> <span class="n">the</span> <span class="n">fact</span> <span class="n">that</span> <span class="n">it</span> <span class="n">can</span> <span class="n">easily</span> <span class="n">be</span> <span class="n">reused</span> <span class="n">to</span> <span class="n">implement</span> <span class="n">any</span> 
+</span><span class='line'><span class="n">number</span> <span class="n">of</span> <span class="n">state</span> <span class="n">machines</span><span class="o">.</span> <span class="n">However</span><span class="o">,</span> <span class="n">there</span><span class="s1">&#39;s one thing that bugs me about it: building one is rather yucky. </span>
+</span><span class='line'><span class="s1">&lt;%= id(&#39;</span><span class="n">state</span><span class="o">-</span><span class="n">machine</span><span class="o">-</span><span class="n">builder</span><span class="s1">&#39;) { url -&gt; &quot;Check out [part 2] ($url) &quot; } ?: &#39;</span><span class="n">Tune</span> <span class="k">in</span> <span class="n">next</span> <span class="n">week</span> <span class="err">&#39;</span> <span class="o">%&gt;</span> <span class="n">to</span> <span class="n">see</span> <span class="n">a</span> <span class="n">better</span> <span class="n">way</span> 
+</span><span class='line'><span class="n">to</span> <span class="o">*</span><span class="n">build</span><span class="o">*</span> <span class="n">run</span><span class="o">-</span><span class="n">time</span> <span class="n">state</span> <span class="n">machines</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure>
+<p><em>Note that the actual content is all on one line, unlike the rendering shown above.</em></p>
+<p>The last sentence changes depending on whether an article with the <code>id</code> <em>state-machine-builder</em> exists. Lets take a closer look at just the Groovy code:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">id</span><span class="o">(</span><span class="s1">&#39;state-machine-builder&#39;</span><span class="o">)</span> <span class="o">{</span><span class="n">url</span> <span class="o">-&gt;</span> <span class="s2">&quot;Check out [part 2] ($url) &quot;</span> <span class="o">}</span> <span class="o">?:</span> <span class="s1">&#39;Tune in next week &#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>When the <em>state machine builder</em> page is found the <code>Closure</code> is called, which then returns Markdown content with a link to the page. Otherwise it returns a simple: <em>Tune in next week</em>. In practice this means that upon publishing the follow-up article, the original article gets rendered with a link to the new article. I don't have to remember to go back and add the link!</p>
+<h2>Don't forget to publish</h2>
+<p>It's common for me to draft multiple articles simultaneously. Not <em>literally</em> simultaneously; you know what I mean. Obviously this makes it quite possible to accidentally forget to publish an article. Grain blog posts contain a <em>published</em> YAML attribute. Usually this attribute is treated as a Boolean; the article is published when set to <em>true</em>. And so it was, until I got my hands on it:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">private</span> <span class="kt">def</span> <span class="n">filterPublished</span> <span class="o">=</span> <span class="o">{</span> <span class="n">Map</span> <span class="n">it</span> <span class="o">-&gt;</span>
+</span><span class='line'>    <span class="k">if</span><span class="o">(</span><span class="n">site</span><span class="o">.</span><span class="na">show_unpublished</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">it</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">published</span> <span class="k">instanceof</span> <span class="n">String</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">Date</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">site</span><span class="o">.</span><span class="na">datetime_format</span><span class="o">,</span> <span class="n">it</span><span class="o">.</span><span class="na">published</span><span class="o">)</span> <span class="o">&lt;=</span> <span class="n">currentDate</span> <span class="o">?</span> <span class="n">it</span> <span class="o">:</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">text</span><span class="o">.</span><span class="na">ParseException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span> 
+</span><span class='line'>            <span class="kc">null</span> 
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">it</span><span class="o">.</span><span class="na">published</span> <span class="o">!=</span> <span class="kc">false</span> <span class="o">?</span> <span class="n">it</span> <span class="o">:</span> <span class="kc">null</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>I modified the <code>ResourceMapper</code> to accept a <code>String</code>-formatted date so that articles are published once the publication date has arrived.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="nn">---</span>
+</span><span class='line'><span class="l-Scalar-Plain">layout</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">post</span>
+</span><span class='line'><span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="s">&quot;Not</span><span class="nv"> </span><span class="s">Having</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">Remember&quot;</span>
+</span><span class='line'><span class="l-Scalar-Plain">description</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">There&#39;s no need to remind yourself to do something when you can code for it right now.</span> 
+</span><span class='line'><span class="l-Scalar-Plain">date</span><span class="p-Indicator">:</span> <span class="s">&quot;2015-12-21</span><span class="nv"> </span><span class="s">19:24&quot;</span>
+</span><span class='line'><span class="l-Scalar-Plain">author</span><span class="p-Indicator">:</span>
+</span><span class='line'><span class="l-Scalar-Plain">categories</span><span class="p-Indicator">:</span> <span class="p-Indicator">[]</span>
+</span><span class='line'><span class="l-Scalar-Plain">comments</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</span><span class='line'><span class="l-Scalar-Plain">published</span><span class="p-Indicator">:</span> <span class="s">&quot;2016-01-01</span><span class="nv"> </span><span class="s">00:00&quot;</span>
+</span><span class='line'><span class="nn">---</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>It's time-sensitive</h2>
+<p>As I began publishing articles on my newsletter, I learned that among other rendering anomalies, my Graphviz and PlantUML diagrams do not render properly. I'm using a taglib to process the diagram's source code and render it as SVG content. Apparently email clients don't know what to do with SVG images. So I added a temporary message to the page new subscribers see:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">&lt;% if(Date.parse(site.datetime_format, &quot;2016-03-01 00:00&quot;) &gt;= new Date()) { %&gt;</span>
+</span><span class='line'><span class="l-Scalar-Plain">### For what it&#39;s worth</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">*You&#39;ll notice my articles render... well... not as sexy as I&#39;d like, in your mail box.</span> 
+</span><span class='line'><span class="l-Scalar-Plain">The diagrams are a particular problem because they are in SVG format; Web browsers are OK with this, but email clients are not.*</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">*But I&#39;m working on it.*</span>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;% } %&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>I'm assuming that I'll have the issues resolved within a few months so I <em>set it and forgot it</em>.</p>
+<h2>That's all folks</h2>
+<p>When planning out my site, I knew from the start that I wanted something programmable. I wanted to write content as if I were coding. And I'm glad to say Grain has delivered. I look forward to coding more and remembering less.</p>
+]]></content></entry><entry><title type="html"><![CDATA[Builder of the State]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/builder-of-the-state/"/><updated>2015-12-23T20:50:48-05:00</updated><id>26b85926ced15f2714ddf6aeb8b614ca</id><content type="html"><![CDATA[<p>In my article <a href="http://emmanuelrosa.com/articles/the-state-of-things/">The State of Things</a> I introduced the idea of a run-time state machine: one which is assembled at run-time and dynamically delegates actions to each state. The premise is that state machines tend to be alike, therefore it makes sense to factor out the common code. A programmer's wet dream. This is a departure from how the state machine design pattern is commonly implemented; in which each state machine is crafted out of its own set of domain-specific classes.</p>
 <p>Since the action method calls are not known at compile-time, run-time state machines apply only to dynamic/multi-dispatch programming languages, such as Groovy. Here's where the aforementioned article left off:</p>
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

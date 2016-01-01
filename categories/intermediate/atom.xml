@@ -1,1 +1,115 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/categories/intermediate/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2015-12-23T20:18:58-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator></feed>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/categories/intermediate/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2015-12-22T10:31:21-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[Design Failure: A reflection of a mistaken Grails app domain model design]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/design-failure-a-reflection-of-a-mistaken-grails-app-domain-model-design/"/><updated>2015-12-22T10:31:21-05:00</updated><id>1f9110f0a04e368520552fa394207196</id><content type="html"><![CDATA[<p>Back in April of this year I took over the development of a client's Grails application. The app is simple:</p>
+<ol>
+<li>Business ideas flow into it</li>
+<li>The ideas are displayed for people to vote on.</li>
+<li>The top 3 voted ideas during a given week are deemed the winners. <em>(Still working on this one)</em></li>
+</ol>
+<p>Initially, once the weekly competition completed, the winning ideas became inaccessible because the view was designed to render only the ideas for the <em>current</em> competition. Yeah, talk about a brain fart.</p>
+<!--more-->
+<p>My solution was to simply keep track of all winning ideas using a new domain model. Besides, the <em>previous</em> and <em>current</em> competition stats were kept in two properties of the same domain class. It was a putrid situation in need of venting.</p>
+<p><em>Great!</em>, I thought. <em>I know exactly what to do</em>. And so I proceeded with a new model similar to this:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Competition</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Date</span> <span class="n">startDate</span>
+</span><span class='line'>    <span class="n">Idea</span> <span class="n">idea</span>
+</span><span class='line'>    <span class="n">Integer</span> <span class="n">votes</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">mapping</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nl">id:</span> <span class="nl">composite:</span> <span class="o">[</span><span class="s1">&#39;startDate&#39;</span><span class="o">,</span> <span class="s1">&#39;idea&#39;</span><span class="o">]</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/*</span>
+</span><span class='line'><span class="cm">     * The hashCode() and equals() dance.</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Yeah... the problem should have been obvious to me, but it wasn't. Since each competition is identified by its start date, and each idea can be in a competition only once, I figured this was a logical solution.</p>
+<p>And in fact, it works just fine. Recording a vote in a competition is simple:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">example</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Competition</span><span class="o">(</span><span class="nl">idea:</span> <span class="n">idea</span><span class="o">,</span> <span class="nl">startDate:</span> <span class="n">startDate</span><span class="o">)</span>
+</span><span class='line'><span class="kt">def</span> <span class="n">competition</span> <span class="o">=</span> <span class="n">Competition</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">example</span><span class="o">)</span> <span class="o">?:</span> <span class="n">competition</span> 
+</span><span class='line'>
+</span><span class='line'><span class="n">competition</span><span class="o">.</span><span class="na">votes</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1">// or -= 1 for a down-vote</span>
+</span><span class='line'><span class="n">competition</span><span class="o">.</span><span class="na">save</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>An existing <code>Competition</code> is used if possible, otherwise a new instance is created. No problem. Except... that a competition is supposed to be able to have multiple ideas. And while the <code>Competition</code> model does <em>work</em>, it's design doesn't reflect its purpose. If my design was by intention for performance or anoother technical reason, I would be content. But the fact remains that I blatantly overlooked the <em>concept</em> of a competition and instead fixated on the <em>implementation</em>. I'm not even going to discuss what I did with the services. I'd clear the room.</p>
+<p>The code-smell remained elusive until the day I began working on a new feature and needed a list of the competitions; meaning a list of competition dates.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">competitionDates</span> <span class="o">=</span> <span class="n">Competition</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">distinct</span><span class="o">(</span><span class="s1">&#39;startDate&#39;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span> 
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>I had to use <em>DISTINCT</em>.</p>
+<p>My days supporting horrid Microsoft Access databases taught me that having to use <em>DISTINCT</em> can be a sign of a... <em>ignorantly de-normalized</em> database. (I resisted the urge to use a more descriptive four-letter word)</p>
+<h2>Redemption</h2>
+<p>If you're like me, software architecture just rocks your socks off. When a particular problem enters my mind, there's no shutting it up until I solve it. It doesn't care that I go hungry, or that my eyes itch, or that I <em>really</em> need to visit the toilet. It demands my full attention; Emmanuel be damned.</p>
+<p>OK, maybe I exaggerated a bit. In this case the solution is rather simple:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kd">class</span> <span class="nc">Competition</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Date</span> <span class="n">startDate</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span><span class="nl">ideas:</span> <span class="n">CompetitionIdea</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">mapping</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">id</span> <span class="nl">generator:</span> <span class="s1">&#39;assigned&#39;</span><span class="o">,</span> <span class="nl">name:</span> <span class="s1">&#39;startDate&#39;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">CompetitionIdea</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Idea</span> <span class="n">idea</span>
+</span><span class='line'>    <span class="n">Integer</span> <span class="n">votes</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span><span class="nl">competition:</span> <span class="n">Competition</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">idea</span> <span class="nl">unique:</span> <span class="s1">&#39;competition&#39;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Now a competition can indeed have multiple ideas.</p>
+<p>Aaaahhhhh. Now I can relieve myself in peace <span class="fa fa-smile-o"></span></p>
+<h2>Lesson learned</h2>
+<p>I don't recall my thought the process when developing the <code>Competition</code> domain model. But because I'm a SQL aficionado, I can only assume that my thinking was too data-centric, too early. By focusing on how to store the data I didn't give enough attention to the concepts the data represents. That's something for me to watch out for in the future.</p>
+<p>Speaking of software architecture, have you read any of <a href="http://aosabook.org/en/index.html">The Architecture of Open Source Applications</a> books? As of now there are three books and a fourth is on the way. Written by the developers themselves, the books cover the design of various open source applications. They make for a good read.</p>
+]]></content></entry></feed>

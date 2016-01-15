@@ -1,0 +1,552 @@
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en" prefix="og: http://ogp.me/ns#>
+<head>
+  <meta charset="utf-8">
+  <title>Easy WAR deployment - EmmanuelRosa.com</title>
+  <meta property="author" content="Emmanuel Rosa">
+
+  
+    <meta name="description" content="A simple way to consistently deploy your Web Application Archives.">
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="canonical" href="http://emmanuelrosa.com/articles/easy-war-deployment/">
+  <link href="http://emmanuelrosa.com/images/favicon-04b8a331dc172dc2876810a77fddf8b0.png" type="image/png" rel="icon">
+  <link href="http://emmanuelrosa.com/atom.xml" rel="alternate" title="EmmanuelRosa.com" type="application/atom+xml">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://emmanuelrosa.com/articles/easy-war-deployment/">
+  <meta property="og:title" content="Easy WAR deployment - EmmanuelRosa.com">
+  <meta property="og:description" content="A simple way to consistently deploy your Web Application Archives.">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="EmmanuelRosa.com" />
+  <meta property="og:updated_time" content="2016-01-08T15:23:36-05:00" />
+  <meta property="og:image" content="http://emmanuelrosa.comhttp://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+
+  <script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery-2.1.3.min-32015dd42e9582a80a84736f5d9a44d7.js"></script>
+<script src="http://emmanuelrosa.com/javascripts/libs/jquery/jquery.cookie-d5528dde0006c78be04817327c2f9b6f.js"></script>
+
+<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="http://emmanuelrosa.com/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="http://emmanuelrosa.com/assets/font-awesome/css/font-awesome.min.css">
+
+
+  
+  <link href="http://emmanuelrosa.com/stylesheets/screen-e4fc71c55515b4737f869e41df2c9bec.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+
+  
+   <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-69493301-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+
+
+  <!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+<script type="text/javascript">
+    window.cookieconsent_options = {"message":"Of course this website uses cookies. It would be so bland without them.","dismiss":"I'm so baked","learnMore":"What the frack?","link":"https://www.google.com/policies/privacy/partners/","theme":"dark-bottom"};
+</script>
+
+<script type="text/javascript" src="http://emmanuelrosa.com/javascripts/cookieconsent.min-b4176fc70afe0c55107683f38e47d71b.js"></script>
+<!-- End Cookie Consent plugin -->
+
+</head>
+
+
+  
+  <body 
+     >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://emmanuelrosa.com/">EmmanuelRosa.com</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li >
+                    <a href="http://emmanuelrosa.com/archives/"><span class="fa fa-archive hidden-sm hidden-md hidden-lg"></span> Articles</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                
+            </ul>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" role="main" class="container">
+        <div id="content">
+            <div class="row">
+                <div class="page-content col-md-12">
+                    
+<article class="hentry" role="article" itemscope itemtype="http://schema.org/BlogPosting">
+  <!-- http://schema.org meta-data -->
+  <meta itemscope itemprop="mainEntityOfPage" itemType="https://schema.org/WebPage" itemid="http://emmanuelrosa.com/articles/easy-war-deployment/"/>
+  <meta itemprop="name" content="Easy WAR deployment" />
+  <meta itemprop="author" content="Emmanuel Rosa" />
+  <meta itemprop="publisher" content="Emmanuel Rosa" />
+  <meta itemprop="datePublished" content="Wed Dec 30 15:11:00 EST 2015" />
+  <meta itemprop="dateModified" content="Fri Jan 08 15:23:36 EST 2016" />
+  <meta itemprop="description" content="A simple way to consistently deploy your Web Application Archives." />
+  <meta itemprop="url" content="http://emmanuelrosa.com/articles/easy-war-deployment/" />
+  <meta itemprop="image" content="http://emmanuelrosa.com/images/logo-56fc9f8a57dedecb5c6d1e59cd1c8c20.png" />
+
+  
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+      </p>
+    
+    <h1 class="entry-title" itemprop="name headline">Easy WAR deployment
+        
+    </h1>
+  </header>
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>As I considered the requirements of moving an existing Grails app from a Cloud-Foundry-based host to a VPS (virtual private service), there was one thought nagging in my mind. It wasn't choosing between the Oracle and OpenJRE, nor configuring PostgreSQL, nor minimizing downtime to be caused by the database restore and DNS updates, nor... It was deployment. That thing I'd have to do as part of developing and supporting the application. I had become accustomed to <em>pushing</em> the app and having it copy over to the host and start up all on its own.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>magical_directory_with_latest_war_file
+</span><span class='line'>af login
+</span><span class='line'>...
+</span><span class='line'>af push myapp
+</span></code></pre></td></tr></table></div></figure>
+<p>Poof! Validation was one Chrome tab away. Then --most of the time-- I'd find my updates happily humming along. So I set about replicating this work-flow on a naked VPS.</p>
+<h2>Nobody's home</h2>
+<p>After logging in to the Debian Linux VPS through SSH, I began to implement my <em>infrastructure plan</em>. Installing and configuring as if I had a gun to my head. There was a hard deadline and I wasn't about to miss it.</p>
+<p><em>In the end, I got it done</em> waaaay <em>ahead of time. Hell, I didn't know</em> that <em>was going to happen!</em></p>
+<p>I found the app a comfortable home in <code>/opt/myapp/</code> and while I was at it, dumped the boring ol' Tomcat and replaced her with a new exiting pal to play footsies with: Jetty. Actually, I replaced Tomcat with Jetty to simply the deployment process I was cooking up; sometimes I loose myself in hyperbole.</p>
+<p>With everything in place, and my app running, the only thing missing was the deployment process. How to get new versions of the app copied over and have the app restart with the new code. With an idea in mind, I paid a visit to the mistress. I mean, the <em>other</em> mistress: Mercurial.</p>
+<h2>One Mercurial hook a day, keeps the project lead away</h2>
+<p>The idea was simple:</p>
+<p><img src="http://emmanuelrosa.com/images/deploySequence-3667c072e8e9dc3b1fedca084f7f85b4-55b437fd30b6a38dbc9d8d627d02f657.png" alt="Deployment sequence diagram" /></p>
+<p>The developer (me) would check in the latest WAR file into a Mercurial repository. The repository would be a clone of a repo on the VPS. So a push would copy over the changesets and then run a Mercurial hook on the VPS. The hook would first stop the app, then check out the latest WAR file, and finally start the app.</p>
+<p>Right away, my first question was: <em>How do I go about stopping and starting the app?</em> And just as quickly a dormant corner of my brain responded: <em>By making the app an ordinary Operating System service. Duh!</em></p>
+<p>I looked about at various ways to wrap my app in something that would make it function like an OS service, a daemon, but the solutions gave me indigestion. Besides, I preferred to avoid modifying the code to make this happen. With the app being executed by Jetty, a simple SIGTERM/SIGKILL was enough to shut it down. So I played with the idea of coding a wrapper which could be executed by the OS's init system. The wrapper would be able start/stop the app, and the Mercurial hook could then simply call the wrapper. Being a Gentoo Linux user, I'm familiar with OpenRC. Debian uses systemd, (which I quickly learned is quite nice), so off to creating a systemd service.</p>
+<p><em>Here's a fun fact: Due to Gentoo Linux's rolling-release, my current Gentoo installation is the same one --though up-to-date-- installed about 14 years ago.</em></p>
+<p>The systemd service for my app looks like this:</p>
+<figure class='code'><figcaption><span>/etc/systemd/system/myapp.service</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="k">[Unit]</span>
+</span><span class='line'><span class="na">Description</span><span class="o">=</span><span class="s">My App</span>
+</span><span class='line'><span class="na">After</span><span class="o">=</span><span class="s">network.target system-postgresql.slice</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">[Service]</span>
+</span><span class='line'><span class="na">User</span><span class="o">=</span><span class="s">myapp</span>
+</span><span class='line'><span class="na">EnvironmentFile</span><span class="o">=</span><span class="s">/etc/myapp.conf</span>
+</span><span class='line'><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/bin/java $JAVA_OPTS -jar $JETTY --out $LOG $WAR</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">[Install]</span>
+</span><span class='line'><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>That was easy. There was no need to manage a PID file! Next, the configuration file for the service.</p>
+<figure class='code'><figcaption><span>/etc/myapp.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="na">JAVA_OPTS</span><span class="o">=</span><span class="s">-Xms512M -Xmx512M -XX:MaxPermSize=256M -XX:PermSize=128M </span>
+</span><span class='line'><span class="na">JETTY</span><span class="o">=</span><span class="s">/opt/myapp/jetty-runner-9.2.9.v20150224.jar</span>
+</span><span class='line'><span class="na">LOG</span><span class="o">=</span><span class="s">/var/log/myapp/yyyy_mm_dd-myapp.log</span>
+</span><span class='line'><span class="na">WAR</span><span class="o">=</span><span class="s">/opt/myapp/webapp/myapp.war</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Then it was a matter of enabling the service to run on boot and... giving it a go.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># systemctl enable myapp</span>
+</span><span class='line'><span class="c"># systemctl start myapp</span>
+</span><span class='line'><span class="c"># systemctl stop myapp</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It worked beautifully.</p>
+<p>Now, I didn't want to log in as root when pushing to the repo, so I granted my developer account access to the necessary <code>systemctl</code> commands via sudo. Then I was ready for the final piece. The Mercurial hook:</p>
+<figure class='code'><figcaption><span>/opt/myapp/webapp/.hg/deployhook.sh</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># NAME: deployhook.sh</span>
+</span><span class='line'><span class="c"># AUTHOR: Emmanuel Rosa</span>
+</span><span class='line'><span class="c"># PURPOSE: Deploy myapp WAR file on the tip of the default branch</span>
+</span><span class='line'>
+</span><span class='line'>sudo /bin/systemctl stop myapp <span class="o">&amp;&amp;</span> hg update default <span class="o">&amp;&amp;</span> sudo /bin/systemctl start myapp
+</span></code></pre></td></tr></table></div></figure>
+<p>I configured the hook to run on <code>changegroup</code>, which means after the entire push completes.</p>
+<figure class='code'><figcaption><span>/opt/myapp/webapp/.hg/hgrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="k">[hooks]</span>
+</span><span class='line'><span class="na">changegroup</span> <span class="o">=</span> <span class="s">/opt/myapp/webapp/.hg/deployhook.sh</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>Happy as a clam</h2>
+<p>Having just confirmed the meaning of the expression <em>happy as a clam</em>, I can honestly say that's me. Deployment of my app is <em>still</em> a simple push away, and I had a good time set it all up.</p>
+</div>
+
+  <div id="article-read-detector"></div>
+  <footer>
+    <div class="text-center">
+        <p>Get more articles like this. <em>Weekly.</em></p>
+        <!-- Begin MailChimp Signup Form -->
+<div id="mc_embed_signup">
+<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" class="validate form-inline mc-embedded-subscribe-form" target="_blank" novalidate id="mc-article-footer">
+    <div>
+    
+    <div class="form-group">
+        <input type="email" value="" name="EMAIL" class="email form-control" placeholder="email address" required>
+    </div>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
+    <input type="submit" value="Sign up" name="subscribe" class="btn btn-primary" id="mc-article-footer-submit">
+    </div>
+</form>
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+        $('#mc-article-footer-submit').click(function() {
+            ga('send', 'event', 'newsletter', 'start-signup', 'mc-article-footer');
+        });
+    });
+</script>
+
+<!--End mc_embed_signup-->
+
+    </div>
+    <br /><br />
+    
+      <div class="sharing text-center">
+<p>Useful? Tell a friend.</p>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-twitter">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-google-plus">&nbsp;&nbsp;&nbsp;</span></a>
+
+    <a style="font-size: 25px;" href="#"><span class="fa fa fa-facebook">&nbsp;&nbsp;&nbsp;</span></a>
+
+    
+    <a style="font-size: 25px;" href="mailto:?to=&subject=A simple way to consistently deploy your Web Application Archives.&body=Your personalized message goes here. http://emmanuelrosa.com/articles/easy-war-deployment/"><span class="fa fa-envelope"></span></a>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    $(".sharing .fa-twitter").click(function(e) {
+        e.preventDefault();
+        
+        var url = "https://twitter.com/share?url=http://emmanuelrosa.com/articles/easy-war-deployment/&text=A+simple+way+to+consistently+deploy+your+Web+Application+Archives."
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-facebook").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://www.facebook.com/sharer/sharer.php?u=http://emmanuelrosa.com/articles/easy-war-deployment/";
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+
+    $(".sharing .fa-google-plus").click(function(e) {
+        e.preventDefault();
+
+        var url = "https://plus.google.com/share?url=http://emmanuelrosa.com/articles/easy-war-deployment/"
+        window.open(url, "popupWindow", "width=600,height=600,scrollbars=yes");
+    });
+});
+</script>
+
+    
+  </footer>
+</article>
+
+
+<div id="ouibounce-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Thank you for reading!</h4>
+      </div>
+      <div class="modal-body">
+        <img class="pull-left visible-md-block visible-lg-block" src="http://emmanuelrosa.com/images/me-aed1cb28a1261a6257b60aa56fab0eae.png" style="margin-right: 30px"/>
+        <div>
+            <h4>Not everyone bothers to read, you know. Yet you did. I have a weekly newsletter wherein I publish articles like this one.</h4>
+            <h3>Care to sign up?</h3>
+            <!-- Begin MailChimp Signup Form -->
+<div id="mc_embed_signup">
+<form action="//emmanuelrosa.us12.list-manage.com/subscribe/post?u=4b1cb5850b8311c1f0bbb7198&amp;id=05cd5c1d15" method="post" class="validate form-inline mc-embedded-subscribe-form" target="_blank" novalidate id="mc-article-on-exit-modal">
+    <div>
+    
+    <div class="form-group">
+        <input type="email" value="" name="EMAIL" class="email form-control" placeholder="email address" required>
+    </div>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_4b1cb5850b8311c1f0bbb7198_05cd5c1d15" tabindex="-1" value=""></div>
+    <input type="submit" value="Sign up" name="subscribe" class="btn btn-primary" id="mc-article-on-exit-modal-submit">
+    </div>
+</form>
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+        $('#mc-article-on-exit-modal-submit').click(function() {
+            ga('send', 'event', 'newsletter', 'start-signup', 'mc-article-on-exit-modal');
+        });
+    });
+</script>
+
+<!--End mc_embed_signup-->
+
+            <h5>Hmm... I'd rather <a href="http://emmanuelrosa.com/archives/">read a bit more</a> first.</h5>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+/*
+ * jQuery appear plugin
+ *
+ * Copyright (c) 2012 Andrey Sidorov
+ * licensed under MIT license.
+ *
+ * https://github.com/morr/jquery.appear/
+ *
+ * Version: 0.3.6
+ */
+(function($) {
+  var selectors = [];
+
+  var check_binded = false;
+  var check_lock = false;
+  var defaults = {
+    interval: 250,
+    force_process: false
+  };
+  var $window = $(window);
+
+  var $prior_appeared = [];
+
+  function process() {
+    check_lock = false;
+    for (var index = 0, selectorsLength = selectors.length; index < selectorsLength; index++) {
+      var $appeared = $(selectors[index]).filter(function() {
+        return $(this).is(':appeared');
+      });
+
+      $appeared.trigger('appear', [$appeared]);
+
+      if ($prior_appeared[index]) {
+        var $disappeared = $prior_appeared[index].not($appeared);
+        $disappeared.trigger('disappear', [$disappeared]);
+      }
+      $prior_appeared[index] = $appeared;
+    }
+  };
+
+  function add_selector(selector) {
+    selectors.push(selector);
+    $prior_appeared.push();
+  }
+
+  // "appeared" custom filter
+  $.expr[':']['appeared'] = function(element) {
+    var $element = $(element);
+    if (!$element.is(':visible')) {
+      return false;
+    }
+
+    var window_left = $window.scrollLeft();
+    var window_top = $window.scrollTop();
+    var offset = $element.offset();
+    var left = offset.left;
+    var top = offset.top;
+
+    if (top + $element.height() >= window_top &&
+        top - ($element.data('appear-top-offset') || 0) <= window_top + $window.height() &&
+        left + $element.width() >= window_left &&
+        left - ($element.data('appear-left-offset') || 0) <= window_left + $window.width()) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  $.fn.extend({
+    // watching for element's appearance in browser viewport
+    appear: function(options) {
+      var opts = $.extend({}, defaults, options || {});
+      var selector = this.selector || this;
+      if (!check_binded) {
+        var on_check = function() {
+          if (check_lock) {
+            return;
+          }
+          check_lock = true;
+
+          setTimeout(process, opts.interval);
+        };
+
+        $(window).scroll(on_check).resize(on_check);
+        check_binded = true;
+      }
+
+      if (opts.force_process) {
+        setTimeout(process, opts.interval);
+      }
+      add_selector(selector);
+      return $(selector);
+    }
+  });
+
+  $.extend({
+    // force elements's appearance check
+    force_appear: function() {
+      if (check_binded) {
+        process();
+        return true;
+      }
+      return false;
+    }
+  });
+})(function() {
+  if (typeof module !== 'undefined') {
+    // Node
+    return require('jquery');
+  } else {
+    return jQuery;
+  }
+}());
+
+!function(e,n){"function"==typeof define&&define.amd?define(n):"object"==typeof exports?module.exports=n(require,exports,module):e.ouibounce=n()}(this,function(e,n,o){return function(e,n){"use strict";function o(e,n){return"undefined"==typeof e?n:e}function i(e){var n=24*e*60*60*1e3,o=new Date;return o.setTime(o.getTime()+n),"; expires="+o.toUTCString()}function t(){s()||(L.addEventListener("mouseleave",u),L.addEventListener("mouseenter",r),L.addEventListener("keydown",c))}function u(e){e.clientY>k||(D=setTimeout(m,y))}function r(){D&&(clearTimeout(D),D=null)}function c(e){g||e.metaKey&&76===e.keyCode&&(g=!0,D=setTimeout(m,y))}function d(e,n){return a()[e]===n}function a(){for(var e=document.cookie.split("; "),n={},o=e.length-1;o>=0;o--){var i=e[o].split("=");n[i[0]]=i[1]}return n}function s(){return d(T,"true")&&!v}function m(){s()||(e&&(e.style.display="block"),E(),f())}function f(e){var n=e||{};"undefined"!=typeof n.cookieExpire&&(b=i(n.cookieExpire)),n.sitewide===!0&&(w=";path=/"),"undefined"!=typeof n.cookieDomain&&(x=";domain="+n.cookieDomain),"undefined"!=typeof n.cookieName&&(T=n.cookieName),document.cookie=T+"=true"+b+x+w,L.removeEventListener("mouseleave",u),L.removeEventListener("mouseenter",r),L.removeEventListener("keydown",c)}var l=n||{},v=l.aggressive||!1,k=o(l.sensitivity,20),p=o(l.timer,1e3),y=o(l.delay,0),E=l.callback||function(){},b=i(l.cookieExpire)||"",x=l.cookieDomain?";domain="+l.cookieDomain:"",T=l.cookieName?l.cookieName:"viewedOuibounceModal",w=l.sitewide===!0?";path=/":"",D=null,L=document.documentElement;setTimeout(t,p);var g=!1;return{fire:m,disable:f,isDisabled:s}}});
+
+
+(function() {
+    var articleReadDetector = $('#article-read-detector');
+
+    articleReadDetector.appear();
+    articleReadDetector.on('appear', function(event, elements) {
+        ouibounce(false,
+            {
+                delay: 500,
+                sitewide: true,
+                callback: function() { 
+                    $('#ouibounce-modal').modal('show');
+                }
+            });
+
+        articleReadDetector.off('appear'); 
+        
+        ga('send', 'event', 'article', 'read', 'Easy WAR deployment');
+        
+    });
+})();
+</script>
+
+
+                </div>
+            <div>
+            
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <!-- Nothing to see here -->
+
+</div>
+</footer>
+    
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+<script src="http://emmanuelrosa.com/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="http://emmanuelrosa.com/javascripts/modernizr-14450bf93252c8e5cc9ff5944c8ff121.js"></script>
+
+
+
+       <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text navbar-left">
+                Copyright &copy; 2016 - Emmanuel Rosa
+            </p>
+            <p class="navbar-text navbar-right">
+                
+            </p>
+        </div>
+       </nav>
+  </body>
+</html>

@@ -1,14 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2016-01-08T00:00:00-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[Those Damn Pop-ups]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/those-damn-pop-ups/"/><updated>2016-01-08T00:00:00-05:00</updated><id>f0125e5ac3ac7415b60e1348cc61ceda</id><content type="html"><![CDATA[<p>I get it. You want those mailing list sign-ups.</p>
-<p>When building a business, acquiring (and keeping) an audience is important. And part of acquiring an audience is asking them to do things, such as signing up for a mailing list; this is known as the <em>call-to-action</em>. The problem that's unfortunately still prevalent today, is executing the call-to-action way too early. <em>Before</em> the guest has had a chance to experience what you have to offer. Some sites was wised up, but only mildly so, by withholding the call-to-action for a moment. An improvement on this model is the on-exit modal, which displays the call-to-action pop-up when the guests' mouse cursor moves away from the page. Ouibounce is an example of a product which does this quite well.</p>
-<p><em>Note: Ouibounce is in-effective on mobile devices.</em></p>
-<p>However, if your guest quickly realizes your site is not what he's looking for, the on-exit pop-up intrudes. Without having received any value, why should the guest sign up to your mailing list? Maybe it's just a reflection of my reserved nature, but I dislike having people and/or their outspoken pop-ups in my face. And I return the favor by <em>speaking</em> only when it's valuable to do so.</p>
-<p>Since my website <a href="http://emmanuelrosa.com">EmmanuelRosa.com</a> features articles (like this one), I'm experimenting with the idea of displaying my call-to-action only when the visitor has demonstrated interest in my work; by actually reading it. Now, don't get me wrong. My site doesn't have eyes (except for Google), nor is it even close to being omniscient. Instead, I judge an article as being read when a guest scrolls down far enough to display the end of the article.</p>
-<h2>Try it for yourself</h2>
-<p>Lets try something. <span class="hidden-md hidden-lg">First, you'll need a computer because this exercise won't work on mobile devices, <em>yet</em>.</span> If you're reading this in my newsletter, then click <a href="http://emmanuelrosa.com/articles/those-damn-pop-ups/">here</a> to view this article in your web browser. I recommend using the <em>incognito</em> (private) mode of your web browser because it ensures the Ouibounce cookie won't exist. To clarify, while reading this in a web browser on a computer (PC or Mac), move your mouse cursor to the address bar of your web browser. Within a second... nothing should happen.</p>
-<p>I know, I know, testing for a negative is bad science. But you'll know whether it really worked or not shortly.</p>
-<h2>The article read detector</h2>
-<p>Detecting when an article has been read begins with an HTML tag placed right after the article's content.</p>
-<figure class='code'><figcaption><span>theme/layouts/post.html</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2016-01-15T00:00:00-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[Easy WAR deployment]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/easy-war-deployment/"/><updated>2016-01-15T00:00:00-05:00</updated><id>98dcb1f9d47655d923b5988f1f843900</id><content type="html"><![CDATA[<p>As I considered the requirements of moving an existing Grails app from a Cloud-Foundry-based host to a VPS (virtual private service), there was one thought nagging in my mind. It wasn't choosing between the Oracle and OpenJRE, nor configuring PostgreSQL, nor minimizing downtime to be caused by the database restore and DNS updates, nor... It was deployment. That thing I'd have to do as part of developing and supporting the application. I had become accustomed to <em>pushing</em> the app and having it copy over to the host and start up all on its own.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>magical_directory_with_latest_war_file
+</span><span class='line'>af login
+</span><span class='line'>...
+</span><span class='line'>af push myapp
+</span></code></pre></td></tr></table></div></figure>
+<p>Poof! Validation was one Chrome tab away. Then --most of the time-- I'd find my updates happily humming along. So I set about replicating this work-flow on a naked VPS.</p>
+<h2>Nobody's home</h2>
+<p>After logging in to the Debian Linux VPS through SSH, I began to implement my <em>infrastructure plan</em>. Installing and configuring as if I had a gun to my head. There was a hard deadline and I wasn't about to miss it.</p>
+<p><em>In the end, I got it done</em> waaaay <em>ahead of time. Hell, I didn't know</em> that <em>was going to happen!</em></p>
+<p>I found the app a comfortable home in <code>/opt/myapp/</code> and while I was at it, dumped the boring ol' Tomcat and replaced her with a new exiting pal to play footsies with: Jetty. Actually, I replaced Tomcat with Jetty to simply the deployment process I was cooking up; sometimes I loose myself in hyperbole.</p>
+<p>With everything in place, and my app running, the only thing missing was the deployment process. How to get new versions of the app copied over and have the app restart with the new code. With an idea in mind, I paid a visit to the mistress. I mean, the <em>other</em> mistress: Mercurial.</p>
+<h2>One Mercurial hook a day, keeps the project lead away</h2>
+<p>The idea was simple:</p>
+<p><img src="http://emmanuelrosa.com/images/deploySequence-3667c072e8e9dc3b1fedca084f7f85b4-55b437fd30b6a38dbc9d8d627d02f657.png" alt="Deployment sequence diagram" /></p>
+<p>The developer (me) would check in the latest WAR file into a Mercurial repository. The repository would be a clone of a repo on the VPS. So a push would copy over the changesets and then run a Mercurial hook on the VPS. The hook would first stop the app, then check out the latest WAR file, and finally start the app.</p>
+<p>Right away, my first question was: <em>How do I go about stopping and starting the app?</em> And just as quickly a dormant corner of my brain responded: <em>By making the app an ordinary Operating System service. Duh!</em></p>
+<p>I looked about at various ways to wrap my app in something that would make it function like an OS service, a daemon, but the solutions gave me indigestion. Besides, I preferred to avoid modifying the code to make this happen. With the app being executed by Jetty, a simple SIGTERM/SIGKILL was enough to shut it down. So I played with the idea of coding a wrapper which could be executed by the OS's init system. The wrapper would be able start/stop the app, and the Mercurial hook could then simply call the wrapper. Being a Gentoo Linux user, I'm familiar with OpenRC. Debian uses systemd, (which I quickly learned is quite nice), so off to creating a systemd service.</p>
+<p><em>Here's a fun fact: Due to Gentoo Linux's rolling-release, my current Gentoo installation is the same one --though up-to-date-- installed about 14 years ago.</em></p>
+<p>The systemd service for my app looks like this:</p>
+<figure class='code'><figcaption><span>/etc/systemd/system/myapp.service</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -19,64 +33,59 @@
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'>---
-</span><span class='line'>layout: default
-</span><span class='line'>navbar: Blog
-</span><span class='line'>single: true
-</span><span class='line'>sharing: true
-</span><span class='line'>---
+</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="k">[Unit]</span>
+</span><span class='line'><span class="na">Description</span><span class="o">=</span><span class="s">My App</span>
+</span><span class='line'><span class="na">After</span><span class="o">=</span><span class="s">network.target system-postgresql.slice</span>
 </span><span class='line'>
-</span><span class='line'><span class="nt">&lt;article&gt;</span>
-</span><span class='line'>  ...
-</span><span class='line'>  ${include &#39;article.html&#39;, [content: content]}
-</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;article-read-detector&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
-</span><span class='line'>  ...
-</span><span class='line'><span class="nt">&lt;/article&gt;</span>
+</span><span class='line'><span class="k">[Service]</span>
+</span><span class='line'><span class="na">User</span><span class="o">=</span><span class="s">myapp</span>
+</span><span class='line'><span class="na">EnvironmentFile</span><span class="o">=</span><span class="s">/etc/myapp.conf</span>
+</span><span class='line'><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/bin/java $JAVA_OPTS -jar $JETTY --out $LOG $WAR</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">[Install]</span>
+</span><span class='line'><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
 </span></code></pre></td></tr></table></div></figure>
-<p>You can simply add a <code>&lt;div&gt;</code> with the id <em>article-read-detector</em> right beneath the article content. By making this change to the <code>post.html</code> layout of my Grain-powered website, the <em>article read detector</em> renders on all of my articles. With the tag in place, you'd be ready to put the <em>article read detector</em> to work.</p>
-<p>Its name may be deceiving since the <code>&lt;div&gt;</code> doesn't actually detect anything. The <em>detecting</em> is done by the jQuery Appear plugin. When applied to an HTML tag (technically, an HTML element) jQuery Appear generates <em>appear</em> and <em>disappear</em> events when the tag appears/disappears from the browser's view-port. With jQuery Appear and Ouibounce loaded, you can set up the <em>article read detector</em>; which goes something like this:</p>
-<figure class='code'><figcaption><span>theme/includes/custom/ouibounce.html</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>That was easy. There was no need to manage a PID file! Next, the configuration file for the service.</p>
+<figure class='code'><figcaption><span>/etc/myapp.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="na">JAVA_OPTS</span><span class="o">=</span><span class="s">-Xms512M -Xmx512M -XX:MaxPermSize=256M -XX:PermSize=128M </span>
+</span><span class='line'><span class="na">JETTY</span><span class="o">=</span><span class="s">/opt/myapp/jetty-runner-9.2.9.v20150224.jar</span>
+</span><span class='line'><span class="na">LOG</span><span class="o">=</span><span class="s">/var/log/myapp/yyyy_mm_dd-myapp.log</span>
+</span><span class='line'><span class="na">WAR</span><span class="o">=</span><span class="s">/opt/myapp/webapp/myapp.war</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Then it was a matter of enabling the service to run on boot and... giving it a go.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># systemctl enable myapp</span>
+</span><span class='line'><span class="c"># systemctl start myapp</span>
+</span><span class='line'><span class="c"># systemctl stop myapp</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>It worked beautifully.</p>
+<p>Now, I didn't want to log in as root when pushing to the repo, so I granted my developer account access to the necessary <code>systemctl</code> commands via sudo. Then I was ready for the final piece. The Mercurial hook:</p>
+<figure class='code'><figcaption><span>/opt/myapp/webapp/.hg/deployhook.sh</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">...</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">articleReadDetector</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#article-read-detector&#39;</span><span class="p">);</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
 </span><span class='line'>
-</span><span class='line'><span class="nx">articleReadDetector</span><span class="p">.</span><span class="nx">appear</span><span class="p">();</span>
-</span><span class='line'><span class="nx">articleReadDetector</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;appear&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">elements</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">ouibounce</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="nx">delay</span><span class="o">:</span> <span class="mi">500</span><span class="p">,</span>
-</span><span class='line'>            <span class="nx">sitewide</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
-</span><span class='line'>            <span class="nx">callback</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> 
-</span><span class='line'>                <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#ouibounce-modal&#39;</span><span class="p">).</span><span class="nx">modal</span><span class="p">(</span><span class="s1">&#39;show&#39;</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'><span class="c"># NAME: deployhook.sh</span>
+</span><span class='line'><span class="c"># AUTHOR: Emmanuel Rosa</span>
+</span><span class='line'><span class="c"># PURPOSE: Deploy myapp WAR file on the tip of the default branch</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="nx">articleReadDetector</span><span class="p">.</span><span class="nx">off</span><span class="p">(</span><span class="s1">&#39;appear&#39;</span><span class="p">);</span> 
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'><span class="p">...</span>
+</span><span class='line'>sudo /bin/systemctl stop myapp <span class="o">&amp;&amp;</span> hg update default <span class="o">&amp;&amp;</span> sudo /bin/systemctl start myapp
 </span></code></pre></td></tr></table></div></figure>
-<p><em>Note: I'm using the Ouibounce callback as a work-around for an issue which prevents Ouibounce from displaying Twitter Bootstrap modals.</em></p>
-<p>First, jQuery Appear is applied to the <em>article read detector</em> <code>&lt;div&gt;</code>. Next, the <em>appear</em> event handler is set up. The handler first configures Ouibounce to display my call-to-action. Finally, the <em>appear</em> event handler is removed since it only needs to run once.</p>
-<h2>The moment of truth</h2>
-<p>If you can see the newsletter sign up form following this article, you've triggered my <em>article read detector</em>. Lets finish the exercise. Move the mouse cursor to the browser's navigation bar. Within a second... you'll see the call-to-action pop-up.</p>
-<p><img src="http://emmanuelrosa.com/images/call-to-action-fcaf048e64b20300e75aa1bcff022e95.png" alt="Call-to-action" /></p>
-<p><em>My call-to-action may have changed in appearance by now.</em></p>
-<p>With a call-to-action implemented this way, it displays only when it's most likely to be useful. Visitors who don't scroll to the end of the article are left alone; they may never be back anyway. Yet visitors who demonstrate an interest are given a gentle nudge. I think it's the respecful way to go.</p>
+<p>I configured the hook to run on <code>changegroup</code>, which means after the entire push completes.</p>
+<figure class='code'><figcaption><span>/opt/myapp/webapp/.hg/hgrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ini'><span class='line'><span class="k">[hooks]</span>
+</span><span class='line'><span class="na">changegroup</span> <span class="o">=</span> <span class="s">/opt/myapp/webapp/.hg/deployhook.sh</span>
+</span></code></pre></td></tr></table></div></figure>
+<h2>Happy as a clam</h2>
+<p>Having just confirmed the meaning of the expression <em>happy as a clam</em>, I can honestly say that's me. Deployment of my app is <em>still</em> a simple push away, and I had a good time set it all up.</p>
 ]]></content></entry></feed>

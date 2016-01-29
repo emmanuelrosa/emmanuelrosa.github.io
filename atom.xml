@@ -1,269 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2016-01-22T00:00:00-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[Running SQL Queries from Grails]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/running-sql-queries-from-grails/"/><updated>2016-01-22T00:00:00-05:00</updated><id>75cc30781aef55922ae9d2a6aa09420a</id><content type="html"><![CDATA[<p>As great as GORM and Hibernate are, sometimes you need more raw power. When Criteria queries and HQL aren't enough, it's good to know that sticking your hands into the SQL abyss is possible. First, a very simple SQL query:</p>
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Product</span><span class="o">.</span><span class="na">withNewSession</span> <span class="o">{</span> <span class="n">session</span> <span class="o">-&gt;</span>
-</span><span class='line'>    <span class="n">session</span><span class="o">.</span><span class="na">createSQLQuery</span><span class="o">(</span><span class="s1">&#39;SELECT * FROM Product&#39;</span><span class="o">).</span><span class="na">list</span><span class="o">()</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>In GORM (actually Hibernate) you build a <code>SQLQuery</code> instance using <code>org.hibernate.session.createSQLQuery(String)</code>. A session can be had by calling <code>Entity.withNewSession(Closure)</code>; a method available to all domain classes. Finally, Calling <code>SQLQuery.list()</code> runs the query and returns the output.</p>
-<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;8 inch teddy bear, comes with cap and jacket&#39;</span><span class="o">,</span> <span class="s1">&#39;8 inch teddy bear&#39;</span><span class="o">,</span> <span class="mf">5.99</span><span class="o">,</span> <span class="mi">1</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">2</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear, comes with cap and jacket&#39;</span><span class="o">,</span> <span class="s1">&#39;12 inch teddy bear&#39;</span><span class="o">,</span> <span class="mf">8.99</span><span class="o">,</span> <span class="mi">1</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">3</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;18 inch teddy bear, comes with cap and jacket&#39;</span><span class="o">,</span> <span class="s1">&#39;18 inch teddy bear&#39;</span><span class="o">,</span> <span class="mf">11.99</span><span class="o">,</span> <span class="mi">1</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">4</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;Fish bean bag toy, complete with bean bag worms with which to feed it&#39;</span><span class="o">,</span> <span class="s1">&#39;Fish bean bag toy&#39;</span><span class="o">,</span> <span class="mf">3.49</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">5</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;Bird bean bag toy, eggs are not included&#39;</span><span class="o">,</span> <span class="s1">&#39;Bird bean bag toy&#39;</span><span class="o">,</span> <span class="mf">3.49</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">6</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;Rabbit bean bag toy, comes with bean bag carrots&#39;</span><span class="o">,</span> <span class="s1">&#39;Rabbit bean bag toy&#39;</span><span class="o">,</span> <span class="mf">3.49</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">7</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;18 inch Raggedy Ann doll&#39;</span><span class="o">,</span> <span class="s1">&#39;Raggedy Ann&#39;</span><span class="o">,</span> <span class="mf">4.99</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">8</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;12 inch king doll with royal garments and crown&#39;</span><span class="o">,</span> <span class="s1">&#39;King doll&#39;</span><span class="o">,</span> <span class="mf">9.49</span><span class="o">,</span> <span class="mi">5</span><span class="o">]</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">9</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;12 inch queen doll with royal garments and crown&#39;</span><span class="o">,</span> <span class="s1">&#39;Queen doll&#39;</span><span class="o">,</span> <span class="mf">9.49</span><span class="o">,</span> <span class="mi">5</span><span class="o">]</span>
-</span><span class='line'><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>Right away there's a problem. The result of the query represents each domain class instance as a list of column values. You get a pretty <em>result set</em> instead of domain class instances.</p>
-<h2>Returning domain classes</h2>
-<p>With a small change, the same query can be made to return domain class instances.</p>
-<figure class='code'><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="n">session</span><span class="o">.</span><span class="na">createSQLQuery</span><span class="o">(</span><span class="s1">&#39;SELECT * FROM product&#39;</span><span class="o">).</span><span class="na">addEntity</span><span class="o">(</span><span class="n">Product</span><span class="o">).</span><span class="na">list</span><span class="o">()</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>The <code>SQLQuery.addEntity(Class)</code> method tells Hibernate to map the resulting rows into instances of the specified domain class. For this to work, the query must return all of the columns mapped to the domain class properties. To meet this requirement, I used <em>SELECT </em>*, selecting all of the table's columns. The output is what you'd expect.</p>
-<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span>
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">1</span><span class="o">,</span> 
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">2</span><span class="o">,</span> 
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">3</span><span class="o">,</span>
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">4</span><span class="o">,</span>
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">5</span><span class="o">,</span>
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">6</span><span class="o">,</span> 
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">7</span><span class="o">,</span> 
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">8</span><span class="o">,</span> 
-</span><span class='line'>    <span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">9</span>
-</span><span class='line'><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>It does get more involved when you attempt to return multiple domain class instances per row, which I'll skip in this article. Nevertheless, SQL becomes useful when you need to code a query beyond the capabilities of GORM. I'll introduce two examples: <em>UNION</em> queries and joining sub queries.</p>
-<h2>UNION queries</h2>
-<p>You should know up-front that the following is a pretty lousy excuse for a UNION query. Just when I needed a good example, I could not think of one. Since I'll be diving into more of the example domain classes, here's a diagram of the example domain model:</p>
-<p><img src="http://emmanuelrosa.com/images/sqladdicts-domains-dd608e6240ea469473399853225b6c94.svg" alt="Domain class diagram" /></p>
-<p>I'll start by adding a convenience method to <code>Collection</code> using Groovy's meta-class:</p>
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">Collection</span><span class="o">.</span><span class="na">metaClass</span><span class="o">.</span><span class="na">collectWithIndex</span> <span class="o">=</span> <span class="o">{</span><span class="n">Closure</span> <span class="n">transform</span> <span class="o">-&gt;</span>
-</span><span class='line'>    <span class="kt">def</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="n">delegate</span><span class="o">.</span><span class="na">collect</span> <span class="o">{</span>
-</span><span class='line'>        <span class="kt">def</span> <span class="n">result</span> <span class="o">=</span> <span class="n">transform</span><span class="o">(</span><span class="n">it</span><span class="o">,</span> <span class="n">index</span><span class="o">)</span>
-</span><span class='line'>        <span class="n">index</span><span class="o">++</span>
-</span><span class='line'>        <span class="n">result</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>The method is a mash-up of <code>Collection.collect(Closure)</code> and <code>Collection.withEachIndex(Closure)</code> which I'll use to generate some SQL. The following <em>UNION</em> example joins the output of queries identical except for filtering on different dates.</p>
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">dates</span> <span class="o">=</span> <span class="o">[</span>
-</span><span class='line'>    <span class="s1">&#39;2004-05-01 00:00:00&#39;</span><span class="o">,</span> 
-</span><span class='line'>    <span class="s1">&#39;2004-01-12 00:00:00&#39;</span>
-</span><span class='line'><span class="o">].</span><span class="na">collect</span> <span class="o">{</span> <span class="n">Date</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s1">&#39;yyyy-MM-dd HH:mm:ss&#39;</span><span class="o">,</span> <span class="n">it</span><span class="o">)</span> <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">def</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">dates</span><span class="o">.</span><span class="na">collectWithIndex</span> <span class="o">{</span> <span class="n">date</span><span class="o">,</span> <span class="n">index</span> <span class="o">-&gt;</span>
-</span><span class='line'>    <span class="s2">&quot;&quot;&quot;</span>
-</span><span class='line'><span class="s2">    SELECT p.* FROM purchase_order AS po</span>
-</span><span class='line'><span class="s2">    INNER JOIN item AS it ON it.order_id = po.id   </span>
-</span><span class='line'><span class="s2">    INNER JOIN product AS p ON it.product_id = p.id</span>
-</span><span class='line'><span class="s2">    WHERE po.order_date = :date_$index</span>
-</span><span class='line'><span class="s2">    &quot;&quot;&quot;</span>
-</span><span class='line'><span class="o">}.</span><span class="na">join</span><span class="o">(</span><span class="s1">&#39;UNION&#39;</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">def</span> <span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createSQLQuery</span><span class="o">(</span><span class="n">sql</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>The SQL generated from the two dates looks like this:</p>
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">p</span><span class="p">.</span><span class="o">*</span> <span class="k">FROM</span> <span class="n">purchase_order</span> <span class="k">AS</span> <span class="n">po</span>
-</span><span class='line'><span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">item</span> <span class="k">AS</span> <span class="n">it</span> <span class="k">ON</span> <span class="n">it</span><span class="p">.</span><span class="n">order_id</span> <span class="o">=</span> <span class="n">po</span><span class="p">.</span><span class="n">id</span>   
-</span><span class='line'><span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">product</span> <span class="k">AS</span> <span class="n">p</span> <span class="k">ON</span> <span class="n">it</span><span class="p">.</span><span class="n">product_id</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">id</span>
-</span><span class='line'><span class="k">WHERE</span> <span class="n">po</span><span class="p">.</span><span class="n">order_date</span> <span class="o">=</span> <span class="p">:</span><span class="n">date_0</span>
-</span><span class='line'><span class="k">UNION</span>
-</span><span class='line'><span class="k">SELECT</span> <span class="n">p</span><span class="p">.</span><span class="o">*</span> <span class="k">FROM</span> <span class="n">purchase_order</span> <span class="k">AS</span> <span class="n">po</span>
-</span><span class='line'><span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">item</span> <span class="k">AS</span> <span class="n">it</span> <span class="k">ON</span> <span class="n">it</span><span class="p">.</span><span class="n">order_id</span> <span class="o">=</span> <span class="n">po</span><span class="p">.</span><span class="n">id</span>   
-</span><span class='line'><span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">product</span> <span class="k">AS</span> <span class="n">p</span> <span class="k">ON</span> <span class="n">it</span><span class="p">.</span><span class="n">product_id</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">id</span>
-</span><span class='line'><span class="k">WHERE</span> <span class="n">po</span><span class="p">.</span><span class="n">order_date</span> <span class="o">=</span> <span class="p">:</span><span class="n">date_1</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>The two dates result in two query parameters. So the next step is to add the parameters to the <code>SQLQuery</code> instance. And finally, to execute the query.</p>
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="n">dates</span><span class="o">.</span><span class="na">eachWithIndex</span> <span class="o">{</span> <span class="n">date</span><span class="o">,</span> <span class="n">index</span> <span class="o">-&gt;</span>
-</span><span class='line'>    <span class="n">query</span><span class="o">.</span><span class="na">setParameter</span><span class="o">(</span><span class="s2">&quot;date_$index&quot;</span><span class="o">,</span> <span class="n">date</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">query</span><span class="o">.</span><span class="na">addEntity</span><span class="o">(</span><span class="n">Product</span><span class="o">).</span><span class="na">list</span><span class="o">()</span>
-</span></code></pre></td></tr></table></div></figure>
-<h2>Joining on sub queries</h2>
-<p>Say my impatient boss asks: <em>I need to know which products were sold on May 1st, 2004 </em><em>and</em><em> also on Jan 12th, 2004. I need this for a meeting that starts in 10 minutes. You can do that right?</em></p>
-<p>Such queries aren't as simple as they seem. To solve it I decide to join the <code>product</code> table into itself via a sub-query so that I can compare the same <code>Product</code> to itself but with different purchase dates. You can imagine it to look like this:</p>
-<p><div class="panel panel-default">
-    
-    <div class="panel-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    
-                        <th>PROD A</th>
-                    
-                        <th>PROD A DATE</th>
-                    
-                        <th>PROD B</th>
-                    
-                        <th>PROD B DATE</th>
-                    
-                        <th>MATCH ?</th>
-                    
-                <tr>
-            </thead>
-            <tbody>
-            
-                <tr>
-                    
-                        <td>inch teddy bear</td>
-                    
-                        <td>04/29/2004</td>
-                    
-                        <td>inch teddy bear</td>
-                    
-                        <td>05/01/2004</td>
-                    
-                        <td>N</td>
-                    
-                <tr>
-            
-                <tr>
-                    
-                        <td>inch teddy bear</td>
-                    
-                        <td>05/01/2004</td>
-                    
-                        <td>inch teddy bear</td>
-                    
-                        <td>01/12/2004</td>
-                    
-                        <td>Y</td>
-                    
-                <tr>
-            
-            </tbody>
-        </table>
-    </div>
-</div>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><title><![CDATA[EmmanuelRosa.com]]></title><link href="http://emmanuelrosa.com/atom.xml" rel="self"/><link href="http://emmanuelrosa.com/"/><updated>2016-01-29T00:00:00-05:00</updated><id>http://emmanuelrosa.com/</id><author><name><![CDATA[Emmanuel Rosa]]></name></author><generator uri="http://sysgears.com/grain/">Grain</generator><entry><title type="html"><![CDATA[It's broken, but don't fix it]]></title><link rel="alternative" href="http://emmanuelrosa.com/articles/it-s-broken-but-don-t-fix-it/"/><updated>2016-01-29T00:00:00-05:00</updated><id>f4f1f01c96a8e48c063059e50f9888c8</id><content type="html"><![CDATA[<p>A recent question on StackOverflow reminded me of my greatest frustration as a programmer.</p>
+<p>
+
+<blockquote>
+    <p> 
+I have a legacy system that is extensively using Groovy version 1.0 and currently I can not update Groovy to an updated version. From time to time I'm getting a PermGen error...
 </p>
-<p>The <em>INNER JOIN</em> causes <em>product A</em> to be returned when there's a match.</p>
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">dates</span> <span class="o">=</span> <span class="o">[</span>
-</span><span class='line'>    <span class="s1">&#39;2004-05-01 00:00:00&#39;</span><span class="o">,</span> 
-</span><span class='line'>    <span class="s1">&#39;2004-01-12 00:00:00&#39;</span>
-</span><span class='line'><span class="o">].</span><span class="na">collect</span> <span class="o">{</span> <span class="n">Date</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s1">&#39;yyyy-MM-dd HH:mm:ss&#39;</span><span class="o">,</span> <span class="n">it</span><span class="o">)</span> <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">def</span> <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-</span><span class='line'><span class="s2">SELECT p.* </span>
-</span><span class='line'><span class="s2">FROM purchase_order AS po</span>
-</span><span class='line'><span class="s2">    INNER JOIN item AS it ON it.order_id = po.id   </span>
-</span><span class='line'><span class="s2">    INNER JOIN product AS p ON it.product_id = p.id        </span>
-</span><span class='line'><span class="s2">    INNER JOIN (</span>
-</span><span class='line'><span class="s2">        SELECT p.* </span>
-</span><span class='line'><span class="s2">        FROM purchase_order AS po</span>
-</span><span class='line'><span class="s2">            INNER JOIN item AS it ON it.order_id = po.id   </span>
-</span><span class='line'><span class="s2">            INNER JOIN product AS p ON it.product_id = p.id</span>
-</span><span class='line'><span class="s2">        WHERE po.order_date = :date_1</span>
-</span><span class='line'><span class="s2">    ) AS p2 ON p.id = p2.id</span>
-</span><span class='line'><span class="s2">WHERE po.order_date = :date_0</span>
-</span><span class='line'><span class="s2">&quot;&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">def</span> <span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createSQLQuery</span><span class="o">(</span><span class="n">sql</span><span class="o">)</span>
-</span><span class='line'>    
-</span><span class='line'><span class="n">dates</span><span class="o">.</span><span class="na">eachWithIndex</span> <span class="o">{</span> <span class="n">date</span><span class="o">,</span> <span class="n">index</span> <span class="o">-&gt;</span>
-</span><span class='line'>    <span class="n">query</span><span class="o">.</span><span class="na">setParameter</span><span class="o">(</span><span class="s2">&quot;date_$index&quot;</span><span class="o">,</span> <span class="n">date</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">query</span><span class="o">.</span><span class="na">addEntity</span><span class="o">(</span><span class="n">Product</span><span class="o">).</span><span class="na">list</span><span class="o">()</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>And the beauty is that the output is a list of <code>Product</code> domain classes (a list of one, in this case):</p>
-<figure class='code'><figcaption><span>output</span></figcaption><div class="highlight"><table><tr><td class='code'><pre><code class='groovy'><span class='line'><span class="o">[</span><span class="n">com</span><span class="o">.</span><span class="na">emmanuelrosa</span><span class="o">.</span><span class="na">gormtut</span><span class="o">.</span><span class="na">Product</span> <span class="o">:</span> <span class="mi">1</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-<p>So there you have it. Proof that it's certainly possible to write SQL queries which return your awesome domain classes :)</p>
+    <footer>
+        
+            <strong>Itay Hudedi</strong>
+        
+        
+            <cite>
+                
+                    <a href="http://stackoverflow.com/questions/34973401/cant-unloaded-groovy-classes-permgen-erros" target="_blank">Can't unloaded Groovy classes - PermGen Erros</a>
+                
+            </cite>
+        
+    </footer>
+</blockquote></p>
+<p>To add some context, the latest Groovy version as of this writing is 2.4.5; a lot has changed since 1.0. Sure, there's a memory-related issue in the question, but underlying it is another problem. A much <em>bigger</em> problem: an evasion of the facts on the part of those who prevent programmers from doing what they were hired to do. The real problem is a hot potato no-one is willing to touch it.</p>
+<h2>The killer of efficacy</h2>
+<p>It all goes down like this:</p>
+<ol>
+<li>There is a problem with the software.</li>
+<li>The programmer wants to get in there and fix it.</li>
+<li>The programmer is told <em>Hell no! Leave that alone!</em></li>
+<li>Confused, the programmer eventually figures out the decision makers are afraid of change.</li>
+<li>The programmer ceases to do his/her best to avoid further scolding.</li>
+</ol>
+<p>A valid first question is: Was the programmer's desire to fix the problem right or wrong? To answer this, you have to consider why an employee is employed in the first place.</p>
+<p>When you buy a Mercedes, you expect a certain level of quality from the vehicle. Lets call it um... Mercedes-quality. If you end up with say... Kia-quality (no offense to Kia), then you'd be rightfully pissed. On the other hand, if you end up with Lamborghini-quality then you know you've got one hell of a deal. Unfortunately, this reality-oriented way of valuing doesn't always make it through the front door of corporations.</p>
+<p>When an employer hires an employee a certain level of <em>performance</em> is expected. Typically compensation is based on the performance delivered by the employee. <em>However</em>, for this to work properly the employer must be capable of accurately assessing the performance of the employee. When the assessment is inaccurate, possibly due to incompetence, then of course the assessment will not reflect reality and therefore will be incorrect; an over-achiever may not get the deserved compensation.</p>
+<p>Back to the question, if the best actions of an employee lead to the identification of a problem, and he knows the problem can be fixed, it is completely rational to expect the employee to have a desire to fix the problem. Creating solutions is a means of practicing one's efficacy; one of the most rewarding experiences a human being can have. So yes, the programmer was right.</p>
+<p>I don't think I need to elaborate on what happens when a programmer is not allowed to do her job. But I do want to touch on why these road blocks are put up in the first place.</p>
+<h2>The virtue of irresponsibility</h2>
+<p>In my experience, issues like the one experienced by that poor soul which posted the question come from one place: fear.</p>
+<p>For example, legacy systems were typically developed with poor programming practices, by today's standards that is. Back in the day there was no automated testing. Fast-forward to 2016 and automated testing is abundant. We still use these legacy systems, but instead of giving them the TLC they deserve for their dedicated service, decision makers choose not to touch them in fear they will break in unexpected ways. In reality, they are right in the sense that changes are likely to introduce problems. And due to the extensive manual testing required, making changes is expensive. But the decision makers are failing on one important count: the legacy systems are asking for help, and are being ignored. This is called evasion. If that word sounds ugly, it's because of its implication: the avoidance of responsibility. To put it differently, avoid the problem will not make it go away. To a programmer, a problem is an invitation to apply his knowledge and skills. To be responsible.</p>
+<h2>Pat yourself on the back</h2>
+<p>So to you the programmer I say <em>job well done</em>. If only you'd be recognized for your extraordinary ability. You have done well, even if those around you can't or choose not to see it. Don't be discouraged, it's their loss. There are people, whether they are employers, or open source projects, who'd love for you to join them. Seek them out. You have a middle finger. Don't be afraid to use it.</p>
 ]]></content></entry></feed>

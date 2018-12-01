@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/emmanuelrosa
+--------------------------------------------------------------------
+                                                                                                                                                                                                  I hereby claim:                                                                                                                                                                                                   
+  * I am an admin of http://emmanuelrosa.com
+  * I am emmanuelrosa (https://keybase.io/emmanuelrosa) on keybase.
+  * I have a public key ASDEC6l1SEsPTMKc-YxX4mIRAuP-riwAbaW0QYMR6JWUYQo
+
+To do so, I am signing this object:                                      
+
+{                                                                 
+  "body": {
+    "key": {        
+      "eldest_kid": "0120c40ba975484b0f4cc29cf98c57e2621102e3feae2c006da5b4418311e89594610a",
+      "host": "keybase.io",
+      "kid": "0120c40ba975484b0f4cc29cf98c57e2621102e3feae2c006da5b4418311e89594610a",
+      "uid": "ad0bd2124fac5b2f6acea51efe440019",
+      "username": "emmanuelrosa"
+    },
+    "merkle_root": {
+      "ctime": 1543684027,
+      "hash": "f3087ebb1d597cbd7b9b92d24635e3b9ef091530a17ac2e63efce0ddbdafe7d19c22b710c05a7fa2ff70169e1cd5cb7b2790a080a8ce560d11f2e3fd49a3c7ae",
+      "hash_meta": "0c35404df1c410e3ec89029b15fee4e87f83e8de5f9939b77689597cbe51713d",
+      "seqno": 4037102
+    },
+    "service": {
+      "entropy": "Quyg9dsmtE2SvA+naR12mgg+",
+      "hostname": "emmanuelrosa.com",
+      "protocol": "http:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "2.10.1"
+  },
+  "ctime": 1543684117,
+  "expire_in": 504576000,
+  "prev": "450197223ea2e6c5109208883f802394690349187e37f66772cc0dc3dd8e6fab",
+  "seqno": 10,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgxAupdUhLD0zCnPmMV+JiEQLj/q4sAG2ltEGDEeiVlGEKp3BheWxvYWTESpcCCsQgRQGXIj6i5sUQkgiIP4AjlGkDSRh+N/ZncswNw92Ob6vEIL8BSuurB1vmLwAi2/n8Ahw46fqcI3lqDLzvZA
+fS6+fsAgHCo3NpZ8RAarfsq/mZigOkkgtv2q2ui2PJ6Ex9gU2zcmseKtvTXrjUFOHuOagarGwWGLz/rXeLLxgRhJtD+4BqCdccSvP5DahzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIPuSNA990zf3sktsp53kLCNmAocKB5ItsNhit8fpRvnXo3RhZ80C
+Aqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/emmanuelrosa
+
+==================================================================

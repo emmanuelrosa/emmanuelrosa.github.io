@@ -1,5 +1,0 @@
-User-agent: *
-Disallow: /learn/
-Disallow: /chat/
-Disallow: /CNAME
-Disallow: /config.rb
